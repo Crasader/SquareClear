@@ -10,14 +10,19 @@
 #define Square_h
 
 #include <stdio.h>
-
-int const s_squareColor[] =
+USING_NS_CC;
+Color4F const s_squareColor[] =
 {
-    0xFF0000,
-    0x00FF00,
-    0x0000FF,
-    0x000000,
-    0xFFFFFF
+    Color4F(1,0,0,1),
+    Color4F(0,1,0,1),
+    Color4F(0,0,1,1),
+    Color4F(0,0,0,1),
+    Color4F(1,1,1,1)
+//    0xFF0000,
+//    0x00FF00,
+//    0x0000FF,
+//    0x000000,
+//    0xFFFFFF
 };
 
 class Square
@@ -39,18 +44,16 @@ public:
     {
         _x = -1;
         _y = -1;
-        _color = SC_NONE;
-        _color8 = 0x0;
-        _alpha = 0xFF;
+        _colorIndex = SC_NONE;
+        _color4F = Color4F(0,0,0,0);
     }
     ~Square(){};
     Square(int x,int y,SQUARE_COLOR color,unsigned int alpha = 0xFF)
     {
         _x = x;
         _y = y;
-        _color = color;
-        _alpha = alpha;
-        _color8 = (_alpha <<6) & CalcColor();
+        _colorIndex = color;
+        _color4F = s_squareColor[_colorIndex];
     }
     int GetX()
     {
@@ -62,42 +65,29 @@ public:
     }
     SQUARE_COLOR GetColor()
     {
-        return _color;
+        return _colorIndex;
+    }
+    Color4F getColor4F()
+    {
+        return _color4F;
     }
     void SetColor(SQUARE_COLOR color)
     {
-        _color = color;
-        _color8 = (_alpha <<6) & CalcColor();
+        _colorIndex = color;
+        float alpha = _color4F.a;
+        _color4F = s_squareColor[_colorIndex];
+        _color4F.a = alpha;
     }
-    unsigned int GetColor8()
+    void SetAlpha(float a)
     {
-        return _color8;
-    }
-    void SetAlpha(unsigned int alpha)
-    {
-        _alpha = alpha;
-        _color8 = (_alpha <<6) & CalcColor();
-    }
-    void SetColor8(unsigned int color8)
-    {
-        _color8 = color8;
+        _color4F.a = a;
     }
 private:
     int _x;
     int _y;
-    SQUARE_COLOR _color;
-    //alpha 0~255
-    unsigned int _alpha;
-    //颜色
-    unsigned int _color8;
-    //通过颜色枚举返回对应颜色
-    unsigned int CalcColor()
-    {
-        
-        assert(_color > SC_NONE && _color < SC_MAX);
-        return s_squareColor[_color];
-        
-    }
+    SQUARE_COLOR _colorIndex;
+    Color4F _color4F;
+
     
 };
 

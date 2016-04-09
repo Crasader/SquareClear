@@ -13,6 +13,7 @@
 #include "Square.h"
 
 typedef std::map<int,Square*> SquareMap;
+typedef std::map<int,Square*>::iterator SquareMapIterator;
 class SquareGroup
 {
 public:

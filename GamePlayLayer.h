@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 #include "cocos2d.h"
+class SquareGroup;
+class Square;
 class GamePlayLayer : public cocos2d::Layer
 {
 public:
@@ -25,7 +27,8 @@ public:
     
 protected:
     void drawSquare();
-    
+    void drawSquareGroup(SquareGroup* sg,int x,int y);
+    void drawOneSquare(int x,int y,Square* sq);
     //test 以后通过配置接口获得以下数据
     int m_squareHeight = 32;
     int m_squareWidth = 32;
