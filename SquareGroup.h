@@ -14,7 +14,7 @@
 
 typedef std::map<int,Square*> SquareMap;
 typedef std::map<int,Square*>::iterator SquareMapIterator;
-class SquareGroup
+class SquareGroup : public Node
 {
 public:
     //方块组的类型，形状
@@ -27,13 +27,25 @@ public:
         ST_Z_TURN,
         ST_MAX
     };
-    SquareGroup();
-    SquareGroup(int x,int y,SquareGroup::SQUAREGROUP_TYPE type,Square::SQUARE_COLOR color = Square::SC_BLACK);
+
+	bool init();
+
+	CREATE_FUNC(SquareGroup);
+
+    void SetSquareGroup(int x,int y,SquareGroup::SQUAREGROUP_TYPE type,Square::SQUARE_COLOR color = Square::SC_BLACK);
+
     ~SquareGroup();
+
     //设置方块组的类型和颜色，默认黑色
     void SetGroupType(SQUAREGROUP_TYPE type, Square::SQUARE_COLOR color = Square::SC_BLACK);
+
     SQUAREGROUP_TYPE getGroupType(){return _groupType;}
+
     SquareMap* getGroupArray(){return m_groupArray;}
+
+	void DrawGroup(int squareWidth,int squareHeight);
+
+	void drawOneSquare(int squareWidth, int squareHeight,Square* sq);
     int GetX(){return m_x;}
     int GetY(){return m_y;}
     void SetXY(int x,int y){
@@ -50,6 +62,6 @@ private:
     SQUAREGROUP_TYPE _groupType;
     int m_x;
     int m_y;
-    
+	cocos2d::DrawNode * m_drawNode;
 };
 #endif /* defined(__SquareClear__SquareGroup__) */
