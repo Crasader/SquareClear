@@ -9,6 +9,7 @@
 #ifndef Square_h
 #define Square_h
 
+#include "cocos2d.h"
 #include <stdio.h>
 USING_NS_CC;
 Color4F const s_squareColor[] =
