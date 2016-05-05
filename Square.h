@@ -48,12 +48,13 @@ public:
         _color4F = Color4F(0,0,0,0);
     }
     ~Square(){};
-    Square(int x,int y,SQUARE_COLOR color,unsigned int alpha = 0xFF)
+    Square(int x,int y,SQUARE_COLOR color,float alpha = 1)
     {
         _x = x;
         _y = y;
         _colorIndex = color;
         _color4F = s_squareColor[_colorIndex];
+        _color4F.a = alpha;
     }
     int GetX()
     {
