@@ -103,10 +103,14 @@ void SquareGroup::DrawGroup(int squareWidth, int squareHeight)
 void SquareGroup::drawOneSquare(int squareWidth, int squareHeight, Square* sq)
 {
 	Vec2 _origin = 
-		Director::getInstance()->	convertToGL
-		(Vec2(this->getPositionX() + squareWidth * sq->GetX(), this->getPositionY() + squareHeight * sq->GetY()));
+		//Director::getInstance()->convertToGL
+		(Vec2(squareWidth * sq->GetX(), squareHeight * sq->GetY()));
 	Vec2 _dest = 
-		Director::getInstance()->convertToGL
-		(Vec2(this->getPositionX() + squareWidth * (sq->GetX() + 1), this->getPositionY() + squareHeight * (sq->GetY() + 1)));
+		//Director::getInstance()->convertToGL
+		(Vec2(squareWidth * (sq->GetX() + 1), squareHeight * (sq->GetY() + 1)));
+
 	m_drawNode->drawSolidRect(_origin, _dest, sq->getColor4F());
+
+	//m_drawNode->drawSolidRect(Vec2(squareWidth * sq->GetX(), squareHeight * sq->GetY())
+	//	, Vec2(squareWidth * (sq->GetX() + 1), squareHeight * (sq->GetY() + 1)), sq->getColor4F());
 }
