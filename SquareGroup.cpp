@@ -12,27 +12,27 @@ int const SquareGroup::s_Height = 4;
 int const s_shapeList[SquareGroup::ST_MAX][SquareGroup::s_Width * SquareGroup::s_Height] =
 {
     {
-        1,0,0,0,
-        1,0,0,0,
-        1,1,0,0,
-        0,0,0,0
-    },
-    {
         0,1,0,0,
         0,1,0,0,
-        1,1,0,0,
+        0,1,1,0,
         0,0,0,0
     },
     {
-        1,1,0,0,
+        0,0,1,0,
+        0,0,1,0,
         0,1,1,0,
-        0,0,0,0,
         0,0,0,0
     },
     {
+        0,0,0,0,
+        1,1,0,0,
+        0,1,1,0,
+        0,0,0,0
+    },
+    {
+        0,0,0,0,
         0,1,1,0,
         1,1,0,0,
-        0,0,0,0,
         0,0,0,0
     }
 };
@@ -112,12 +112,9 @@ void SquareGroup::DrawGroup()
 
 void SquareGroup::DrawGroup(int squareWidth, int squareHeight)
 {
-	SquareMap* sm = this->getGroupArray();
-	SquareMapIterator smit;
-	for (smit = sm->begin(); smit != sm->end(); smit++)
-	{
-		drawOneSquare(squareWidth, squareHeight, smit->second);
-	}
+    m_squareWitdh = squareWidth;
+    m_squareHeight = squareHeight;
+    DrawGroup();
 
 
 }
@@ -162,10 +159,15 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 {
     if(!checkTouchInSelf_Parent(touch))
     {
+        if(getIsSelected())
+        {
+            setIsSelected(false);
+        }
         return false;
     }
     setIsSelected(true);
-    
+    m_drawNode->clear();
+    DrawGroup();
     
     return true;
 }
@@ -195,12 +197,14 @@ void SquareGroup::onTouchEnded(Touch *touch, Event *event)
     {
         return;
     }
-    
-    if(!checkTouchInSelf_Parent(touch))
-    {
-        return;
-    }
-    setIsSelected(false);
+    m_drawNode->clear();
+    DrawGroup();
+    drawArrow();
+//    if(!checkTouchInSelf_Parent(touch))
+//    {
+//        return;
+//    }
+    //setIsSelected(false);
     
     return;
 }
@@ -216,7 +220,17 @@ void SquareGroup::onTouchCancelled(Touch *touch, Event *event)
     {
         return;
     }
-    setIsSelected(false);
+    //setIsSelected(false);
     
     return;
 }
+
+void SquareGroup::drawArrow()
+{
+    m_drawNode->drawTriangle(Vec2(-m_squareWitdh *2, m_squareHeight * 2),Vec2(-m_squareWitdh * 1, m_squareHeight * 4),Vec2(-m_squareWitdh * 1, -m_squareHeight * 0), Color4F(1,1,0,1));
+    m_drawNode->drawTriangle(Vec2(m_squareWitdh * (SquareGroup::s_Width + 2), m_squareHeight * 2),Vec2(m_squareWitdh * (SquareGroup::s_Width + 1) * 1, m_squareHeight * 4),Vec2(m_squareWitdh * (SquareGroup::s_Width + 1), -m_squareHeight * 0), Color4F(1,1,0,1));
+}
+
+
+
+

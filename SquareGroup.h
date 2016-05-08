@@ -60,10 +60,13 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *event) override;
     virtual void onTouchCancelled(Touch *touch, Event *event) override;
     
+    void drawArrow();
+    
     static const int s_Width;
     static const int s_Height;
     
     CC_SYNTHESIZE(bool, _isSelected, IsSelected);
+
     
 private:
     void CalcGroup(Square::SQUARE_COLOR color = Square::SC_BLACK);
