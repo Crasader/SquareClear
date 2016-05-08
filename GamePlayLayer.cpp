@@ -39,11 +39,11 @@ bool GamePlayLayer::init()
     //test
     //drawSquare();
 	auto sgtest = SquareGroup::create();
-	sgtest->setAnchorPoint(Vec2(0, 0));
-	sgtest->SetSquareGroup(10, 20, SquareGroup::ST_L, Square::SC_BLUE);
+
+	sgtest->SetSquareGroup(m_squareWidth, m_squareHeight, SquareGroup::ST_L, Square::SC_BLUE);
 	sgtest->setPosition(Vec2(100,100));
     //drawSquareGroup(sgtest, 100, 200);
-	sgtest->DrawGroup(m_squareWidth, m_squareHeight);
+	sgtest->DrawGroup();
 	addChild(sgtest, 100);
     return true;
 }

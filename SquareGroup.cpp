@@ -50,12 +50,24 @@ bool SquareGroup::init()
 	return true;
 }
 
-void SquareGroup::SetSquareGroup(int x, int y, SquareGroup::SQUAREGROUP_TYPE type, Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
+void SquareGroup::SetSquareGroup(int squareWitdh, int squareHeight, SquareGroup::SQUAREGROUP_TYPE type, Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
 {
-    m_groupArray = new std::map<int,Square*>;
-    SetXY(x,y);
+    m_squareWitdh = squareWitdh;
+    m_squareHeight = squareHeight;
     SetGroupType(type,color);
+    setContentSize(Size(m_squareWitdh * SquareGroup::s_Width, m_squareHeight * SquareGroup::s_Height));
+}
+
+SquareGroup::SquareGroup()
+: _isSelected(false)
+{
+    auto listener = EventListenerTouchOneByOne::create();
+    listener->onTouchBegan = CC_CALLBACK_2(SquareGroup::onTouchBegan, this);
+    listener->onTouchMoved = CC_CALLBACK_2(SquareGroup::onTouchMoved, this);
+    listener->onTouchEnded = CC_CALLBACK_2(SquareGroup::onTouchEnded, this);
+    listener->onTouchCancelled = CC_CALLBACK_2(SquareGroup::onTouchCancelled, this);
     
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
 }
 
 SquareGroup::~SquareGroup()
@@ -88,6 +100,16 @@ void SquareGroup::CalcGroup(Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
     }
 }
 
+void SquareGroup::DrawGroup()
+{
+    SquareMap* sm = this->getGroupArray();
+
+    for (auto sq : *sm)
+    {
+        drawOneSquare(m_squareWitdh, m_squareHeight, sq.second);
+    }
+}
+
 void SquareGroup::DrawGroup(int squareWidth, int squareHeight)
 {
 	SquareMap* sm = this->getGroupArray();
@@ -113,4 +135,88 @@ void SquareGroup::drawOneSquare(int squareWidth, int squareHeight, Square* sq)
 
 	//m_drawNode->drawSolidRect(Vec2(squareWidth * sq->GetX(), squareHeight * sq->GetY())
 	//	, Vec2(squareWidth * (sq->GetX() + 1), squareHeight * (sq->GetY() + 1)), sq->getColor4F());
+}
+
+bool SquareGroup::checkTouchInSelf_Parent(Touch *touch)
+{
+    //方案三
+    //获得点击的OpenGL的世界坐标值
+    Vec2 touchPoint = touch->getLocation();
+    //将点击的位置转换成父元素坐标系中的相对坐标
+    Vec2 pt = getParent()->convertToNodeSpace(touchPoint);
+    printf("pt.x=%.1f, pt.y=%.1f\n", pt.x, pt.y);
+    //得到自己在父元素坐标系中的位置范围
+    Rect rect=getBoundingBox();
+    printf("rect.l=%.1f, rect.b=%.1f, rect.r=%.1f, rect.t=%.1f\n",\
+           rect.getMinX(), rect.getMinY(), rect.getMaxX(), rect.getMaxY());
+    //判断是否点击落在自己的范围当中， 以上判断全是在父元素坐标系中进行计算
+    if(rect.containsPoint(pt))
+    {
+        printf("ccTouchBegan x=%.1f y=%.1f\n", touchPoint.x, touchPoint.y);
+        return true;
+    }
+    return false;
+}
+
+bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
+{
+    if(!checkTouchInSelf_Parent(touch))
+    {
+        return false;
+    }
+    setIsSelected(true);
+    
+    
+    return true;
+}
+
+void SquareGroup::onTouchMoved(Touch *touch, Event *event)
+{
+    if(!getIsSelected())
+    {
+        return;
+    }
+//    if(!checkTouchInSelf_Parent(touch))
+//    {
+//        return;
+//    }
+    //获得点击的OpenGL的世界坐标值
+    Vec2 touchPoint = touch->getLocation();
+    //将点击的位置转换成父元素坐标系中的相对坐标
+    Vec2 pt = getParent()->convertToNodeSpace(touchPoint);
+    pt.x -= m_squareWitdh * 2;
+    //pt.y -= m_squareHeight * 2;
+    setPosition(pt);
+}
+
+void SquareGroup::onTouchEnded(Touch *touch, Event *event)
+{
+    if(!getIsSelected())
+    {
+        return;
+    }
+    
+    if(!checkTouchInSelf_Parent(touch))
+    {
+        return;
+    }
+    setIsSelected(false);
+    
+    return;
+}
+
+void SquareGroup::onTouchCancelled(Touch *touch, Event *event)
+{
+    if(!getIsSelected())
+    {
+        return;
+    }
+    
+    if(!checkTouchInSelf_Parent(touch))
+    {
+        return;
+    }
+    setIsSelected(false);
+    
+    return;
 }
