@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Square.h"
+#include "ui/UIButton.h"
 
 typedef std::map<int,Square*> SquareMap;
 typedef std::map<int,Square*>::iterator SquareMapIterator;
@@ -32,13 +33,17 @@ public:
 
 	CREATE_FUNC(SquareGroup);
 
-    void SetSquareGroup(int x,int y,SquareGroup::SQUAREGROUP_TYPE type,Square::SQUARE_COLOR color = Square::SC_BLACK);
+	SquareGroup();
+	~SquareGroup();
 
-    SquareGroup();
-    ~SquareGroup();
+	//设置方块组放块的大小，类型和颜色，默认黑色
+    void SetSquareGroup(Vec2 squareSize,SquareGroup::SQUAREGROUP_TYPE type,Square::SQUARE_COLOR color = Square::SC_BLACK);
 
     //设置方块组的类型和颜色，默认黑色
     void SetGroupType(SQUAREGROUP_TYPE type, Square::SQUARE_COLOR color = Square::SC_BLACK);
+
+	//设置放块组放块的大小
+	void SetSquareSize(Vec2 size);
 
     SQUAREGROUP_TYPE getGroupType(){return _groupType;}
 
@@ -47,13 +52,17 @@ public:
     //绘制方块组
     void DrawGroup();
     //绘制方块组，指定长宽
-	void DrawGroup(int squareWidth,int squareHeight);
+	void DrawGroup(Vec2 squareSize);
 
     //绘制一个方块
-	void drawOneSquare(int squareWidth, int squareHeight,Square* sq);
+	void drawOneSquare(Vec2 squareSize,Square* sq);
 
     bool checkTouchInSelf_Parent(Touch *touch);
     
+	void TurnLeft();
+	void TurnRight();
+	
+	void setArrowButtonVisible(bool flag);
     // Overrides
     virtual bool onTouchBegan(Touch *touch, Event *event) override;
     virtual void onTouchMoved(Touch *touch, Event *event) override;
@@ -72,8 +81,11 @@ private:
     void CalcGroup(Square::SQUARE_COLOR color = Square::SC_BLACK);
     SquareMap *m_groupArray;
     SQUAREGROUP_TYPE _groupType;
-    int m_squareWitdh = 32;
-    int m_squareHeight = 32;
+	Vec2 m_squareSize;
 	cocos2d::DrawNode * m_drawNode;
+	cocos2d::ui::Button * m_arrowButtonLeft;
+	cocos2d::ui::Button * m_arrowButtonRight;
+
+	int* m_groupShape;
 };
 #endif /* defined(__SquareClear__SquareGroup__) */

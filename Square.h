@@ -57,6 +57,11 @@ public:
         _color4F = s_squareColor[_colorIndex];
         _color4F.a = alpha;
     }
+	void setXYIndex(int x_index, int y_index)
+	{
+		_x = x_index;
+		_y = y_index;
+	}
     int GetX()
     {
         return _x;

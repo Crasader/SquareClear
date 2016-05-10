@@ -8,16 +8,18 @@
 
 #include "GamePlayLayer.h"
 #include "SquareGroup.h"
+#include "SquareBaseplateLayer.h"
 USING_NS_CC;
 
+Vec2 GamePlayLayer::s_squareSize = Vec2(32, 32);
 bool GamePlayLayer::init()
 {
     if(!Layer::init())
     {
         return false;
     }
-    m_gameBoardHeight = m_squareRowCount * m_squareHeight;
-    m_gameBoardWidth = m_squareColumnCount * m_squareWidth;
+	m_gameBoardHeight = m_squareRowCount * s_squareSize.y;
+	m_gameBoardWidth = m_squareColumnCount * s_squareSize.x;
     m_BackgroundBoard = new int[m_squareRowCount * m_squareColumnCount];
     //test
     for(int i = 0;i < m_squareRowCount * m_squareColumnCount; i++)
@@ -40,11 +42,15 @@ bool GamePlayLayer::init()
     //drawSquare();
 	auto sgtest = SquareGroup::create();
 
-	sgtest->SetSquareGroup(m_squareWidth, m_squareHeight, SquareGroup::ST_L, Square::SC_BLUE);
+	sgtest->SetSquareGroup(s_squareSize, SquareGroup::ST_L, Square::SC_BLUE);
 	sgtest->setPosition(Vec2(100,100));
     //drawSquareGroup(sgtest, 100, 200);
 	sgtest->DrawGroup();
 	addChild(sgtest, 100);
+
+	auto backGroundLayer = SquareBaseplateLayer::create();
+	backGroundLayer->setPosition(Vec2(200,200));
+	addChild(backGroundLayer, 90);
     return true;
 }
 
@@ -56,15 +62,15 @@ void GamePlayLayer::drawSquare()
 {
     for(int i = 0;i < m_squareRowCount * m_squareColumnCount; i++)
     {
-        float _x = (i % m_squareColumnCount) * m_squareWidth;
-        float _y = (i / m_squareColumnCount) * m_squareHeight;
+		float _x = (i % m_squareColumnCount) * s_squareSize.x;
+		float _y = (i / m_squareColumnCount) * s_squareSize.y;
         if(m_BackgroundBoard[i] == 0)
         {
-            m_drawNode->drawSolidRect(Vec2(_x,_y), Vec2(_x + m_squareWidth, _y + m_squareHeight), Color4F(1,0,0,1));
+			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(1, 0, 0, 1));
         }
         else
         {
-            m_drawNode->drawSolidRect(Vec2(_x,_y), Vec2(_x + m_squareWidth, _y + m_squareHeight),  Color4F(0,1,0,1));
+			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(0, 1, 0, 1));
         }
     }
 }
@@ -83,8 +89,8 @@ void GamePlayLayer::drawSquareGroup(SquareGroup* sg,int x,int y)
 
 void GamePlayLayer::drawOneSquare(int x,int y,Square* sq)
 {
-	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + m_squareWidth * sq->GetX(), y + m_squareHeight * sq->GetY()));
-	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + m_squareWidth * (sq->GetX() + 1), y + m_squareHeight * (sq->GetY() + 1)));
+	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * sq->GetX(), y + s_squareSize.y * sq->GetY()));
+	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * (sq->GetX() + 1), y + s_squareSize.y * (sq->GetY() + 1)));
     m_drawNode->drawSolidRect(_x, _y, sq->getColor4F());
 }
 

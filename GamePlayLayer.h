@@ -24,14 +24,12 @@ public:
 
     int m_gameBoardHeight;
     int m_gameBoardWidth;
-    
+	static cocos2d::Vec2 s_squareSize;
 protected:
     void drawSquare();
     void drawSquareGroup(SquareGroup* sg,int x,int y);
     void drawOneSquare(int x,int y,Square* sq);
-    //test 以后通过配置接口获得以下数据
-    int m_squareHeight = 32;
-    int m_squareWidth = 32;
+	
     int m_squareRowCount = 20;
     int m_squareColumnCount = 20;
     
