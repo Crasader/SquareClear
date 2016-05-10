@@ -160,8 +160,8 @@ void SquareGroup::CalcGroup(Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
     for(int i = 0; i < s_Width * s_Height; i++)
     {
         if(s_shapeList[_groupType][i] == 1)
-        {
-            m_groupArray->insert(std::pair<int,Square*>(i,new Square(i % s_Width,i / s_Height, color)));
+        {//上下翻转，因为gl坐标原点在左下。
+            m_groupArray->insert(std::pair<int,Square*>(i,new Square(i % s_Width, s_Height - 1 - i / s_Height, color)));
         }   
     }
 }
@@ -194,7 +194,7 @@ void SquareGroup::drawOneSquare(Vec2 squareSize, Square* sq)
 		(Vec2(squareSize.x * (sq->GetX() + 1), squareSize.y * (sq->GetY() + 1)));
 
 	m_drawNode->drawSolidRect(_origin, _dest, sq->getColor4F());
-	m_drawNode->drawPoint(Vec2(0,0),5,Color4F(1,1,1,1));
+	//m_drawNode->drawPoint(Vec2(0,0),5,Color4F(1,1,1,1));
 	//m_drawNode->drawSolidRect(Vec2(squareWidth * sq->GetX(), squareHeight * sq->GetY())
 	//	, Vec2(squareWidth * (sq->GetX() + 1), squareHeight * (sq->GetY() + 1)), sq->getColor4F());
 }

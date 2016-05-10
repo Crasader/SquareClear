@@ -51,6 +51,7 @@ bool GamePlayLayer::init()
 	auto backGroundLayer = SquareBaseplateLayer::create();
 	backGroundLayer->setPosition(Vec2(200,200));
 	addChild(backGroundLayer, 90);
+    backGroundLayer->drawBasesplate(s_squareSize);
     return true;
 }
 

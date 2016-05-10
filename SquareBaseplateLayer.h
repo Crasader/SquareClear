@@ -2,7 +2,7 @@
 //
 //
 //	Created by xuhua on 16/5/10
-//  游戏的基板，将方块放置入基板上合适的位置
+//  娓告垙鐨勫熀鏉跨被锛屽皢鏂瑰潡缃簬鍩烘澘鐨勭┖鏍间腑
 //
 //
 
@@ -28,13 +28,16 @@ class SquareBaseplateLayer : public cocos2d::Layer
 public:
 	CREATE_FUNC(SquareBaseplateLayer);
 
+    SquareBaseplateLayer();
 	~SquareBaseplateLayer();
 
 	virtual bool init() override;
 
+    void drawBasesplate(cocos2d::Vec2 squareSize);
 	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);
 private:
 	std::vector<Square*> *m_baseSquareList;
+    cocos2d::DrawNode * m_drawNode;
 
 };
 
