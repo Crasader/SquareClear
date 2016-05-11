@@ -51,12 +51,10 @@ public:
 
     //绘制方块组
     void DrawGroup();
+
     //绘制方块组，指定长宽
 	void DrawGroup(Vec2 squareSize);
-
-    //绘制一个方块
-	void drawOneSquare(Vec2 squareSize,Square* sq);
-
+	
     bool checkTouchInSelf_Parent(Touch *touch);
     
 	void TurnLeft();

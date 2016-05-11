@@ -9,6 +9,7 @@
 #include "SquareGroup.h"
 #include "ui/UIButton.h"
 #include "GamePlayLayer.h"
+#include "SquareBaseplateLayer.h"
 
 int const SquareGroup::s_Width = 4;
 int const SquareGroup::s_Height = 4;
@@ -172,7 +173,8 @@ void SquareGroup::DrawGroup()
 
     for (auto sq : *sm)
     {
-		drawOneSquare(m_squareSize, sq.second);
+		//drawOneSquare(m_squareSize, sq.second);
+		sq.second->drawSquare(m_drawNode, m_squareSize);
     }
 }
 
@@ -182,21 +184,6 @@ void SquareGroup::DrawGroup(Vec2 squareSize)
     DrawGroup();
 
 
-}
-
-void SquareGroup::drawOneSquare(Vec2 squareSize, Square* sq)
-{
-	Vec2 _origin = 
-		//Director::getInstance()->convertToGL
-		(Vec2(squareSize.x * sq->GetX(), squareSize.y * sq->GetY()));
-	Vec2 _dest = 
-		//Director::getInstance()->convertToGL
-		(Vec2(squareSize.x * (sq->GetX() + 1), squareSize.y * (sq->GetY() + 1)));
-
-	m_drawNode->drawSolidRect(_origin, _dest, sq->getColor4F());
-	//m_drawNode->drawPoint(Vec2(0,0),5,Color4F(1,1,1,1));
-	//m_drawNode->drawSolidRect(Vec2(squareWidth * sq->GetX(), squareHeight * sq->GetY())
-	//	, Vec2(squareWidth * (sq->GetX() + 1), squareHeight * (sq->GetY() + 1)), sq->getColor4F());
 }
 
 bool SquareGroup::checkTouchInSelf_Parent(Touch *touch)
@@ -256,6 +243,25 @@ void SquareGroup::onTouchMoved(Touch *touch, Event *event)
 	pt.x -= m_squareSize.x * 2;
     //pt.y -= m_squareHeight * 2;
     setPosition(pt);
+
+	bool needReflashBaseplate = false;
+	for (auto sq : *m_groupArray)
+	{
+		Square* square = (Square*)(sq.second);
+
+		Vec2 centerPos = square->getCenterPointInGroup(m_squareSize);
+		bool flag = GamePlayLayer::getInstance()->
+			getSquareBaseplateLayer()->
+			CheckSquareIsEmpty(getParent()->convertToWorldSpace(getPosition() + centerPos));
+		if (flag)
+		{
+			needReflashBaseplate = true;
+		}
+	}
+	if (needReflashBaseplate)
+	{
+		GamePlayLayer::getInstance()->getSquareBaseplateLayer()->drawBasesplate(m_squareSize);
+	}
 }
 
 void SquareGroup::onTouchEnded(Touch *touch, Event *event)
@@ -308,7 +314,7 @@ void SquareGroup::TurnRight()
 	for (auto sq : *m_groupArray)
 	{
 		Square* square = (Square*)(sq.second);
-		square->setXYIndex(s_Width - square->GetY() - 1 , square->GetX());
+		square->setXYIndex(s_Width - square->getIndexY() - 1, square->getIndexX());
 	}
 }
 

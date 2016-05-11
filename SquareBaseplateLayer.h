@@ -23,6 +23,24 @@ struct BaseSize
 		height = y;
 	}
 };
+enum SquareBaseplateState
+{
+	SQBS_EMPTY = 0,
+	SQBS_MAP,
+	SQBS_FRAME,
+	SQBS_SQUARE,
+	SQBS_MAX
+};
+struct BaseSquare
+{
+	SquareBaseplateState squareState;
+	Square* pSquare;
+	BaseSquare(SquareBaseplateState ss,Square* sq)
+	{
+		squareState = ss;
+		pSquare = sq;
+	}
+};
 class SquareBaseplateLayer : public cocos2d::Layer
 {
 public:
@@ -34,11 +52,17 @@ public:
 	virtual bool init() override;
 
     void drawBasesplate(cocos2d::Vec2 squareSize);
-	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);
-private:
-	std::vector<Square*> *m_baseSquareList;
-    cocos2d::DrawNode * m_drawNode;
 
+	void drawBasesplate();
+	//检查坐标点对应的基板是否为空方块
+	bool CheckSquareIsEmpty(cocos2d::Vec2 point);
+
+	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);
+	CC_SYNTHESIZE(cocos2d::Vec2, _squareSize, SquareSize);
+private:
+	std::vector<BaseSquare> *m_baseSquareList;
+    cocos2d::DrawNode * m_drawNode;
+	
 };
 
 #endif//define SquareBaseplateLayer_h

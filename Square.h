@@ -43,33 +43,27 @@ public:
     };
     Square()
     {
-        _x = -1;
-        _y = -1;
+        _indexX = -1;
+        _indexY = -1;
         _colorIndex = SC_NONE;
         _color4F = Color4F(0,0,0,0);
+		_frameColor = Color4F(0, 0, 0, 0);
     }
     ~Square(){};
     Square(int x,int y,SQUARE_COLOR color,float alpha = 1)
     {
-        _x = x;
-        _y = y;
+        _indexX = x;
+        _indexY = y;
         _colorIndex = color;
         _color4F = s_squareColor[_colorIndex];
         _color4F.a = alpha;
     }
 	void setXYIndex(int x_index, int y_index)
 	{
-		_x = x_index;
-		_y = y_index;
+		_indexX = x_index;
+		_indexY = y_index;
 	}
-    int GetX()
-    {
-        return _x;
-    }
-    int GetY()
-    {
-        return _y;
-    }
+
     SQUARE_COLOR GetColor()
     {
         return _colorIndex;
@@ -89,9 +83,17 @@ public:
     {
         _color4F.a = a;
     }
+	void drawSquare(cocos2d::DrawNode* drawNode, Vec2 squareSize);
+	void drawSquareWithFrame(cocos2d::DrawNode* drawNode, Vec2 squareSize, Color4F frameColor);
+	void drawFrame(cocos2d::DrawNode* drawNode, Vec2 squareSize, Color4F frameColor);
+	//计算sqaure的中心点在group中的坐标
+	Vec2 getCenterPointInGroup(Vec2 squareSize);
+
+	CC_SYNTHESIZE(int, _indexX, IndexX);
+	CC_SYNTHESIZE(int, _indexY, IndexY);
+	CC_SYNTHESIZE(Color4F, _frameColor, FrameColor);
 private:
-    int _x;
-    int _y;
+
     SQUARE_COLOR _colorIndex;
     Color4F _color4F;
 

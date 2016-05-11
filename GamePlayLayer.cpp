@@ -12,6 +12,7 @@
 USING_NS_CC;
 
 Vec2 GamePlayLayer::s_squareSize = Vec2(32, 32);
+GamePlayLayer* GamePlayLayer::s_pGamePlayLayer = NULL;
 bool GamePlayLayer::init()
 {
     if(!Layer::init())
@@ -48,16 +49,28 @@ bool GamePlayLayer::init()
 	sgtest->DrawGroup();
 	addChild(sgtest, 100);
 
-	auto backGroundLayer = SquareBaseplateLayer::create();
-	backGroundLayer->setPosition(Vec2(200,200));
-	addChild(backGroundLayer, 90);
-    backGroundLayer->drawBasesplate(s_squareSize);
+	m_pSquareBaseplateLayer = SquareBaseplateLayer::create();
+	m_pSquareBaseplateLayer->setPosition(Vec2(200, 200));
+	addChild(m_pSquareBaseplateLayer, 90);
+	m_pSquareBaseplateLayer->drawBasesplate(s_squareSize);
     return true;
 }
-
+GamePlayLayer::GamePlayLayer()
+{
+	if (s_pGamePlayLayer == NULL)
+	{
+		s_pGamePlayLayer = this;
+	}
+	else
+	{
+		assert(0);
+	}
+}
 GamePlayLayer::~GamePlayLayer()
 {
     delete[] m_BackgroundBoard;
+	s_pGamePlayLayer = NULL;
+	m_pSquareBaseplateLayer = NULL;
 }
 void GamePlayLayer::drawSquare()
 {
@@ -90,8 +103,8 @@ void GamePlayLayer::drawSquareGroup(SquareGroup* sg,int x,int y)
 
 void GamePlayLayer::drawOneSquare(int x,int y,Square* sq)
 {
-	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * sq->GetX(), y + s_squareSize.y * sq->GetY()));
-	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * (sq->GetX() + 1), y + s_squareSize.y * (sq->GetY() + 1)));
+	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * sq->getIndexX(), y + s_squareSize.y * sq->getIndexY()));
+	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * (sq->getIndexX() + 1), y + s_squareSize.y * (sq->getIndexY() + 1)));
     m_drawNode->drawSolidRect(_x, _y, sq->getColor4F());
 }
 
