@@ -72,39 +72,39 @@ GamePlayLayer::~GamePlayLayer()
 	s_pGamePlayLayer = NULL;
 	m_pSquareBaseplateLayer = NULL;
 }
-void GamePlayLayer::drawSquare()
-{
-    for(int i = 0;i < m_squareRowCount * m_squareColumnCount; i++)
-    {
-		float _x = (i % m_squareColumnCount) * s_squareSize.x;
-		float _y = (i / m_squareColumnCount) * s_squareSize.y;
-        if(m_BackgroundBoard[i] == 0)
-        {
-			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(1, 0, 0, 1));
-        }
-        else
-        {
-			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(0, 1, 0, 1));
-        }
-    }
-}
-
-
-void GamePlayLayer::drawSquareGroup(SquareGroup* sg,int x,int y)
-{
-    SquareMap* sm = sg->getGroupArray();
-    SquareMapIterator smit;
-    for(smit = sm->begin(); smit!=sm->end(); smit++)
-    {
-        drawOneSquare(x, y, smit->second);
-    }
-    
-}
-
-void GamePlayLayer::drawOneSquare(int x,int y,Square* sq)
-{
-	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * sq->getIndexX(), y + s_squareSize.y * sq->getIndexY()));
-	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * (sq->getIndexX() + 1), y + s_squareSize.y * (sq->getIndexY() + 1)));
-    m_drawNode->drawSolidRect(_x, _y, sq->getColor4F());
-}
+//void GamePlayLayer::drawSquare()
+//{
+//    for(int i = 0;i < m_squareRowCount * m_squareColumnCount; i++)
+//    {
+//		float _x = (i % m_squareColumnCount) * s_squareSize.x;
+//		float _y = (i / m_squareColumnCount) * s_squareSize.y;
+//        if(m_BackgroundBoard[i] == 0)
+//        {
+//			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(1, 0, 0, 1));
+//        }
+//        else
+//        {
+//			m_drawNode->drawSolidRect(Vec2(_x, _y), Vec2(_x + s_squareSize.x, _y + s_squareSize.y), Color4F(0, 1, 0, 1));
+//        }
+//    }
+//}
+//
+//
+//void GamePlayLayer::drawSquareGroup(SquareGroup* sg,int x,int y)
+//{
+//    SquareMap* sm = sg->getGroupArray();
+//    SquareMapIterator smit;
+//    for(smit = sm->begin(); smit!=sm->end(); smit++)
+//    {
+//        drawOneSquare(x, y, smit->second);
+//    }
+//    
+//}
+//
+//void GamePlayLayer::drawOneSquare(int x,int y,Square* sq)
+//{
+//	Vec2 _x = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * sq->getIndexX(), y + s_squareSize.y * sq->getIndexY()));
+//	Vec2 _y = Director::getInstance()->convertToGL(Vec2(x + s_squareSize.x * (sq->getIndexX() + 1), y + s_squareSize.y * (sq->getIndexY() + 1)));
+//    m_drawNode->drawSolidRect(_x, _y, sq->getColor4F());
+//}
 

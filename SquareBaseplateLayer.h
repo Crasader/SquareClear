@@ -49,20 +49,34 @@ public:
     SquareBaseplateLayer();
 	~SquareBaseplateLayer();
 
+	static SquareBaseplateLayer * getInstance()
+	{
+		return s_pSquareBaseplateLayer;
+	}
 	virtual bool init() override;
 
     void drawBasesplate(cocos2d::Vec2 squareSize);
 
 	void drawBasesplate();
+	//将所有Frame的放块设回Empty
+	void clearFrameSquare();
 	//检查坐标点对应的基板是否为空方块
-	bool CheckSquareIsEmpty(cocos2d::Vec2 point);
-
+	//return 如果为空。则返回对应的index
+	//		如果不空，返回-1
+	int checkSquareIsEmptyOrFrame(cocos2d::Vec2 point);
+	//将index号的方块设为有边框
+	void setFrame(int index);
+	//获得index号方块的世界坐标
+	cocos2d::Vec2 getWorldPos(int index);
+	//将index号方块设为占用
+	void PlaceSquare(int index);
 	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);
 	CC_SYNTHESIZE(cocos2d::Vec2, _squareSize, SquareSize);
 private:
 	std::vector<BaseSquare> *m_baseSquareList;
     cocos2d::DrawNode * m_drawNode;
 	
+	static SquareBaseplateLayer* s_pSquareBaseplateLayer;
 };
 
 #endif//define SquareBaseplateLayer_h

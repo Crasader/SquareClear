@@ -19,11 +19,16 @@ int baselist[] =
 	1, 1, 1, 1, 1, 1,
 };
 
-
+SquareBaseplateLayer* SquareBaseplateLayer::s_pSquareBaseplateLayer = NULL;
 SquareBaseplateLayer::SquareBaseplateLayer()
 :_baseSize(BaseSize(1,1))
 ,_squareSize(Vec2(1,1))
 {
+	if (s_pSquareBaseplateLayer)
+	{
+		assert(0);
+	}
+	s_pSquareBaseplateLayer = this;
 	m_baseSquareList = new std::vector < BaseSquare >();
 }
 
@@ -35,6 +40,7 @@ SquareBaseplateLayer::~SquareBaseplateLayer()
 	}
 	m_baseSquareList->clear();
 	delete m_baseSquareList;
+	s_pSquareBaseplateLayer = NULL;
 }
 
 bool SquareBaseplateLayer::init()
@@ -115,16 +121,16 @@ void SquareBaseplateLayer::drawBasesplate()
 	drawBasesplate(getSquareSize());
 }
 
-bool SquareBaseplateLayer::CheckSquareIsEmpty(cocos2d::Vec2 point)
+int SquareBaseplateLayer::checkSquareIsEmptyOrFrame(cocos2d::Vec2 point)
 {
 	Vec2 pos =  convertToNodeSpace(point);
 	if (pos.x < 0 || pos.x > getBaseSize().width * getSquareSize().x)
 	{
-		return false;
+		return -1;
 	}
 	if (pos.y < 0 || pos.y > getBaseSize().height * getSquareSize().y)
 	{
-		return false;
+		return -1;
 	}
 
 	int _indexX = (int)(pos.x / getSquareSize().x);
@@ -132,12 +138,69 @@ bool SquareBaseplateLayer::CheckSquareIsEmpty(cocos2d::Vec2 point)
 	int _index = _indexY * getBaseSize().width + _indexX;
 	if (_index >= m_baseSquareList->size())
 	{
-		return false;
+		return -1;
 	}
-	if ((*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_EMPTY)
+	if ((*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_EMPTY
+		|| (*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_FRAME
+		)
 	{
-		(*m_baseSquareList)[_index].squareState = SquareBaseplateState::SQBS_FRAME;
-		return true;
+		return _index;
 	}
-	return false;
+	return -1;
+}
+
+void SquareBaseplateLayer::clearFrameSquare()
+{
+	for (auto &basesquare:*m_baseSquareList)
+	{
+		if (basesquare.squareState == SquareBaseplateState::SQBS_FRAME)
+		{
+			basesquare.squareState = SquareBaseplateState::SQBS_EMPTY;
+		}
+	}
+}
+
+void SquareBaseplateLayer::PlaceSquare(int index)
+{
+	if (index >= m_baseSquareList->size())
+	{
+		assert(0);
+	}
+	if ((*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_EMPTY || (*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_FRAME)
+	{
+		(*m_baseSquareList)[index].squareState = SquareBaseplateState::SQBS_SQUARE;
+	}
+	else
+	{
+		assert(0);
+	}
+	
+}
+
+void SquareBaseplateLayer::setFrame(int index)
+{
+	if (index >= m_baseSquareList->size())
+	{
+		assert(0);
+	}
+	if ((*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_EMPTY || (*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_FRAME)
+	{
+		(*m_baseSquareList)[index].squareState = SquareBaseplateState::SQBS_FRAME;
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+cocos2d::Vec2 SquareBaseplateLayer::getWorldPos(int index)
+{
+	if (index >= m_baseSquareList->size())
+	{
+		assert(0);
+	}
+	Vec2 squarePos = Vec2(index%getBaseSize().width * getSquareSize().x, (getBaseSize().height - 1 - index/getBaseSize().height) * getSquareSize().y);
+	Vec2 worldPos = getParent()->convertToWorldSpace(getPosition() + squarePos);
+
+	return worldPos;
 }

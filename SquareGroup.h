@@ -13,8 +13,25 @@
 #include "Square.h"
 #include "ui/UIButton.h"
 
-typedef std::map<int,Square*> SquareMap;
-typedef std::map<int,Square*>::iterator SquareMapIterator;
+struct SquareInSquareGroup
+{
+	//当方块和基板重合时，group中的方块对应的基板上方块的index
+	//不重合是为-1
+	int indexInBaseplate;
+	Square* square;
+
+	SquareInSquareGroup(Square* sq)
+	{
+		indexInBaseplate = -1;
+		square = sq;
+	}
+};
+enum SquareGroupState
+{
+	SGS_ORIGIN = 0,
+	SGS_SELECTED,
+	SGS_PLACED
+};
 class SquareGroup : public Layer
 {
 public:
@@ -47,7 +64,7 @@ public:
 
     SQUAREGROUP_TYPE getGroupType(){return _groupType;}
 
-    SquareMap* getGroupArray(){return m_groupArray;}
+	std::vector<SquareInSquareGroup>* getGroupArray(){ return m_groupArray; }
 
     //绘制方块组
     void DrawGroup();
@@ -55,8 +72,11 @@ public:
     //绘制方块组，指定长宽
 	void DrawGroup(Vec2 squareSize);
 	
-    bool checkTouchInSelf_Parent(Touch *touch);
-    
+    bool checkTouchInSelf_Parent(Touch *touch);    
+
+	//检查group中的所有square是否可以放置入baseplate。可以的话在baseplate上画个框
+	void CheckBaseEmptyAndSetBaseFrame();
+
 	void TurnLeft();
 	void TurnRight();
 	
@@ -64,7 +84,7 @@ public:
     // Overrides
     virtual bool onTouchBegan(Touch *touch, Event *event) override;
     virtual void onTouchMoved(Touch *touch, Event *event) override;
-    virtual void onTouchEnded(Touch *touch, Event *event) override;
+	virtual void onTouchEnded(Touch *touch, Event *event) override;
     virtual void onTouchCancelled(Touch *touch, Event *event) override;
     
     void drawArrow();
@@ -77,13 +97,13 @@ public:
     
 private:
     void CalcGroup(Square::SQUARE_COLOR color = Square::SC_BLACK);
-    SquareMap *m_groupArray;
+	std::vector<SquareInSquareGroup> *m_groupArray;
     SQUAREGROUP_TYPE _groupType;
 	Vec2 m_squareSize;
 	cocos2d::DrawNode * m_drawNode;
 	cocos2d::ui::Button * m_arrowButtonLeft;
 	cocos2d::ui::Button * m_arrowButtonRight;
-
+	SquareGroupState m_groupState;
 	int* m_groupShape;
 };
 #endif /* defined(__SquareClear__SquareGroup__) */

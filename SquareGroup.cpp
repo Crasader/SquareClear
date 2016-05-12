@@ -46,7 +46,7 @@ bool SquareGroup::init()
 	{
 		return false;
 	}
-    m_groupArray = new std::map<int,Square*>;
+	m_groupArray = new std::vector<SquareInSquareGroup>;
     _groupType = ST_NONE;
 	m_drawNode = DrawNode::create();
 	addChild(m_drawNode, 1);
@@ -119,6 +119,7 @@ bool SquareGroup::init()
 
 SquareGroup::SquareGroup()
 : _isSelected(false)
+, m_groupState(SquareGroupState::SGS_ORIGIN)
 {
 	m_squareSize = GamePlayLayer::s_squareSize;
     auto listener = EventListenerTouchOneByOne::create();
@@ -132,12 +133,10 @@ SquareGroup::SquareGroup()
 
 SquareGroup::~SquareGroup()
 {
-    for(SquareMap::iterator itr = m_groupArray->begin(); itr != m_groupArray->end(); ++itr)
-    {
-        Square* square = itr->second;
-        delete square;
-        square = nullptr;
-    }
+	for (auto sq : *m_groupArray)
+	{
+		delete sq.square;
+	}
     m_groupArray->clear();
     
 }
@@ -162,19 +161,17 @@ void SquareGroup::CalcGroup(Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
     {
         if(s_shapeList[_groupType][i] == 1)
         {//上下翻转，因为gl坐标原点在左下。
-            m_groupArray->insert(std::pair<int,Square*>(i,new Square(i % s_Width, s_Height - 1 - i / s_Height, color)));
+            m_groupArray->push_back(SquareInSquareGroup(new Square(i % s_Width, s_Height - 1 - i / s_Height, color)));
         }   
     }
 }
 
 void SquareGroup::DrawGroup()
 {
-    SquareMap* sm = this->getGroupArray();
-
-    for (auto sq : *sm)
+    for (auto &sq : *m_groupArray)
     {
 		//drawOneSquare(m_squareSize, sq.second);
-		sq.second->drawSquare(m_drawNode, m_squareSize);
+		sq.square->drawSquare(m_drawNode, m_squareSize);
     }
 }
 
@@ -215,6 +212,45 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
         {
             setIsSelected(false);
 			setArrowButtonVisible(false);
+
+			//检查是否所有放块可以放入baseplate中
+			bool allCheckedEmpty = true;
+			for (auto &sq : *m_groupArray)
+			{
+				if (sq.indexInBaseplate == -1)
+				{
+					allCheckedEmpty = false;
+					break;
+				}
+			}
+
+			//for (auto &sq : *m_groupArray)
+			//{
+			//	Vec2 centerPos = sq.square->getCenterPointInGroup(m_squareSize);
+			//	bool flag = GamePlayLayer::getInstance()->
+			//		getSquareBaseplateLayer()->
+			//		CheckSquareIsEmpty(getParent()->convertToWorldSpace(getPosition() + centerPos));
+			//	if (flag == false)
+			//	{
+			//		allCheckedEmpty = false;
+			//	}				
+			//}
+			Vec2 worldPlacePos, localSquarePos;
+			if (allCheckedEmpty)
+			{
+				//for (auto &sq : *m_groupArray)
+				auto sq = (*m_groupArray)[0];
+				{
+					//将group放入baseplate
+					worldPlacePos = SquareBaseplateLayer::getInstance()->getWorldPos(sq.indexInBaseplate);
+
+					localSquarePos = Vec2(sq.square->getIndexX() * m_squareSize.x
+						, (sq.square->getIndexY()) * m_squareSize.y);
+
+				}
+				setPosition(worldPlacePos - localSquarePos);
+			}
+
         }
         return false;
     }
@@ -244,24 +280,8 @@ void SquareGroup::onTouchMoved(Touch *touch, Event *event)
     //pt.y -= m_squareHeight * 2;
     setPosition(pt);
 
-	bool needReflashBaseplate = false;
-	for (auto sq : *m_groupArray)
-	{
-		Square* square = (Square*)(sq.second);
+	CheckBaseEmptyAndSetBaseFrame();
 
-		Vec2 centerPos = square->getCenterPointInGroup(m_squareSize);
-		bool flag = GamePlayLayer::getInstance()->
-			getSquareBaseplateLayer()->
-			CheckSquareIsEmpty(getParent()->convertToWorldSpace(getPosition() + centerPos));
-		if (flag)
-		{
-			needReflashBaseplate = true;
-		}
-	}
-	if (needReflashBaseplate)
-	{
-		GamePlayLayer::getInstance()->getSquareBaseplateLayer()->drawBasesplate(m_squareSize);
-	}
 }
 
 void SquareGroup::onTouchEnded(Touch *touch, Event *event)
@@ -306,16 +326,22 @@ void SquareGroup::drawArrow()
 
 void SquareGroup::TurnLeft()
 {
+	for (auto &sq : *m_groupArray)
+	{
+		sq.square->setXYIndex(s_Width - sq.square->getIndexY() - 1, sq.square->getIndexX());
+	}
+
+	CheckBaseEmptyAndSetBaseFrame();
 
 }
 
 void SquareGroup::TurnRight()
 {
-	for (auto sq : *m_groupArray)
+	for (auto &sq : *m_groupArray)
 	{
-		Square* square = (Square*)(sq.second);
-		square->setXYIndex(s_Width - square->getIndexY() - 1, square->getIndexX());
+		sq.square->setXYIndex(sq.square->getIndexY(), s_Height - sq.square->getIndexX() - 1);
 	}
+	CheckBaseEmptyAndSetBaseFrame();
 }
 
 void SquareGroup::SetSquareSize(Vec2 size)
@@ -330,4 +356,21 @@ void SquareGroup::setArrowButtonVisible(bool flag)
 {
 	m_arrowButtonLeft->setVisible(flag);
 	m_arrowButtonRight->setVisible(flag);
+}
+
+void SquareGroup::CheckBaseEmptyAndSetBaseFrame()
+{
+	SquareBaseplateLayer::getInstance()->clearFrameSquare();
+	for (auto &sq : *m_groupArray)
+	{
+		Vec2 centerPos = sq.square->getCenterPointInGroup(m_squareSize);
+		sq.indexInBaseplate = SquareBaseplateLayer::getInstance()->
+			checkSquareIsEmptyOrFrame(getParent()->convertToWorldSpace(getPosition() + centerPos));
+
+		if (sq.indexInBaseplate != -1)
+		{
+			SquareBaseplateLayer::getInstance()->setFrame(sq.indexInBaseplate);
+		}
+	}
+	SquareBaseplateLayer::getInstance()->drawBasesplate(m_squareSize);
 }

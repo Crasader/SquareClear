@@ -33,9 +33,9 @@ public:
 	SquareBaseplateLayer* getSquareBaseplateLayer() const { return m_pSquareBaseplateLayer; }
 	
 protected:
-    void drawSquare();
-    void drawSquareGroup(SquareGroup* sg,int x,int y);
-    void drawOneSquare(int x,int y,Square* sq);
+    //void drawSquare();
+    //void drawSquareGroup(SquareGroup* sg,int x,int y);
+    //void drawOneSquare(int x,int y,Square* sq);
 	
     int m_squareRowCount = 20;
     int m_squareColumnCount = 20;
