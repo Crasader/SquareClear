@@ -1,5 +1,5 @@
 #include "MainMenuScene.h"
-
+#include "MainMenuLayer.h"
 USING_NS_CC;
 
 Scene* MainMenuScene::createScene()
@@ -24,5 +24,9 @@ bool MainMenuScene::init()
 		return false;
 	}
 
-
+    auto mainMenuLayer = MainMenuLayer::create();
+    
+    addChild(mainMenuLayer);
+    
+    return true;
 }
