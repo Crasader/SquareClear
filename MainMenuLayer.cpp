@@ -29,6 +29,23 @@ bool MainMenuLayer::init()
     
     
     ui::Button* selectMapButton = ui::Button::create();
-    
+    selectMapButton->setTitleText("开始游戏");
+    //selectMapButton->setContentSize(Size(100,20));
+    selectMapButton->addTouchEventListener(
+        [](Ref*, ui::Widget::TouchEventType type)
+        {
+            switch (type)
+            {
+                case ui::Widget::TouchEventType::BEGAN:
+                    
+                    break;
+                default:
+                    break;
+            }
+        }
+    );
+    selectMapButton->setPosition(Vec2(200,200));
+    selectMapButton->setVisible(true);
+    addChild(selectMapButton);
     return true;
 }
