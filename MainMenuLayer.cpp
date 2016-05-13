@@ -1,4 +1,4 @@
-//
+﻿//
 //  MainMenuLayer.cpp
 //  SquareClear
 //
@@ -8,6 +8,8 @@
 
 #include "MainMenuLayer.h"
 #include "ui/UIButton.h"
+#include "Language.h"
+#include "GamePlayScene.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -27,25 +29,38 @@ bool MainMenuLayer::init()
         return false;
     }
     
-    
-    ui::Button* selectMapButton = ui::Button::create();
-    selectMapButton->setTitleText("开始游戏");
-    //selectMapButton->setContentSize(Size(100,20));
-    selectMapButton->addTouchEventListener(
-        [](Ref*, ui::Widget::TouchEventType type)
-        {
-            switch (type)
-            {
-                case ui::Widget::TouchEventType::BEGAN:
-                    
-                    break;
-                default:
-                    break;
-            }
-        }
-    );
-    selectMapButton->setPosition(Vec2(200,200));
-    selectMapButton->setVisible(true);
-    addChild(selectMapButton);
+	MenuItemFont::setFontName("fonts/arial.ttf");
+	MenuItemFont::setFontSize(40);
+
+	auto menuItemSelectMap = MenuItemFont::create(std::string(LocalizedCStringByKey("start_game")));
+	menuItemSelectMap->setCallback(
+		[](Ref*)
+	{
+		auto scene = Scene::create();
+		scene->addChild(GamePlayScene::create());
+		Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
+
+	}
+		);
+
+
+	auto menuItemMapMaker = MenuItemFont::create(std::string(LocalizedCStringByKey("map_maker")));
+	menuItemMapMaker->setCallback(
+		[](Ref*)
+	{
+
+	}
+	);
+
+
+	auto menu = Menu::create(menuItemSelectMap, menuItemMapMaker, nullptr);
+	menu->alignItemsVerticallyWithPadding(20);
+
+	auto s = Director::getInstance()->getWinSize();
+	addChild(menu);
+	menu->setPosition(Vec2(s.width / 2, s.height / 2));
+	
+
+
     return true;
 }

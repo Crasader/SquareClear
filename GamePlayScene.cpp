@@ -8,6 +8,7 @@
 
 #include "GamePlayScene.h"
 #include "GamePlayLayer.h"
+#include "MainMenuScene.h"
 USING_NS_CC;
 
 Scene* GamePlayScene::createScene()
@@ -73,9 +74,13 @@ bool GamePlayScene::init()
 
 void GamePlayScene::menuCloseCallback(Ref* pSender)
 {
-    Director::getInstance()->end();
-    
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
+	auto scene = Scene::create();
+	scene->addChild(MainMenuScene::create());
+	Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
+
+//    Director::getInstance()->end();
+//    
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+//    exit(0);
+//#endif
 }
