@@ -10,6 +10,7 @@
 #include "ui/UIButton.h"
 #include "Language.h"
 #include "GamePlayScene.h"
+#include "MapMakerScene.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -48,6 +49,9 @@ bool MainMenuLayer::init()
 	menuItemMapMaker->setCallback(
 		[](Ref*)
 	{
+		auto scene = Scene::create();
+		scene->addChild(MapMakerScene::create());
+		Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
 
 	}
 	);
