@@ -51,6 +51,7 @@ bool GamePlayLayer::init()
 
 	m_pSquareBaseplateLayer = SquareBaseplateLayer::create();
 	m_pSquareBaseplateLayer->setPosition(Vec2(200, 200));
+    m_pSquareBaseplateLayer->readMapBufTest();
 	addChild(m_pSquareBaseplateLayer, 90);
 	m_pSquareBaseplateLayer->drawBasesplate(s_squareSize);
     return true;

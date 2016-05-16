@@ -54,6 +54,10 @@ public:
 		return s_pSquareBaseplateLayer;
 	}
 	virtual bool init() override;
+    
+    void readMapBuf(void *);
+    void readMapBufTest();
+    void createEmptyMap(BaseSize baseSize);
 
     void drawBasesplate(cocos2d::Vec2 squareSize);
 
@@ -70,11 +74,17 @@ public:
 	cocos2d::Vec2 getWorldPos(int index);
 	//将index号方块设为占用
 	void PlaceSquare(int index);
+    
+    void drawGrid(bool flag);
+    
 	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);
 	CC_SYNTHESIZE(cocos2d::Vec2, _squareSize, SquareSize);
+    
 private:
+    void createGrid();
 	std::vector<BaseSquare> *m_baseSquareList;
     cocos2d::DrawNode * m_drawNode;
+    cocos2d::DrawNode * m_drawNodeGrid;
 	
 	static SquareBaseplateLayer* s_pSquareBaseplateLayer;
 };

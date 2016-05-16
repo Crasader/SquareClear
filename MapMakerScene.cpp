@@ -1,5 +1,8 @@
 #include "MapMakerScene.h"
 #include "MainMenuScene.h"
+#include "SquareGroup.h"
+#include "SquareBaseplateLayer.h"
+#include "Language.h"
 USING_NS_CC;
 
 Scene* MapMakerScene::createScene()
@@ -15,6 +18,16 @@ Scene* MapMakerScene::createScene()
 
 	// return the scene
 	return scene;
+}
+
+MapMakerScene::MapMakerScene()
+{
+
+}
+
+MapMakerScene::~MapMakerScene()
+{
+
 }
 
 bool MapMakerScene::init()
@@ -36,9 +49,58 @@ bool MapMakerScene::init()
 	auto menu = Menu::create(returnToMainMenuItem, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 1);
+    
+    auto baseplateLayer = SquareBaseplateLayer::create();
+    baseplateLayer->createEmptyMap(BaseSize(10,10));
+    baseplateLayer->drawBasesplate(Vec2(32,32));
+    baseplateLayer->setPosition(Vec2(200,200));
+    addChild(baseplateLayer);
+    
 
-
-
+    
+    auto menuItemCreateGroup = MenuItemFont::create(LocalizedCStringByKey("create_group"));
+    menuItemCreateGroup->setCallback(
+    [=](Ref*)
+    {
+        auto squareGroup = SquareGroup::create();
+        squareGroup->setPosition(Vec2(100,100));
+        squareGroup->SetSquareGroup(Vec2(32,32),SquareGroup::SQUAREGROUP_TYPE::ST_Z,Square::SQUARE_COLOR::SC_GREEN);
+        squareGroup->DrawGroup();
+        this->addChild(squareGroup);
+    }
+    );
+    auto menuItemDeleteSelectedGroup = MenuItemFont::create(LocalizedCStringByKey("delete_group"));
+    menuItemDeleteSelectedGroup->setCallback(
+    [=](Ref*)
+    {
+        for(Node* node:this->getChildren())
+        {
+            SquareGroup* sg = dynamic_cast<SquareGroup*>(node);
+            if(sg != nullptr)
+            {
+                if(sg->getIsSelected())
+                {
+                    this->removeChild(node);
+                }
+            }
+        }
+    }
+    );
+    auto menuItemSaveMap = MenuItemFont::create(LocalizedCStringByKey("save_map"));
+    menuItemSaveMap->setCallback(
+    [=](Ref*)
+    {
+        //todo save map
+    }
+    );
+    
+    auto operationMenu = Menu::create(menuItemCreateGroup,menuItemDeleteSelectedGroup,menuItemSaveMap, NULL);
+    operationMenu->alignItemsVerticallyWithPadding(20);
+    auto s = Director::getInstance()->getWinSize();
+    addChild(operationMenu);
+    operationMenu->setPosition(Vec2(s.width - 100, s.height / 2));
+    
+    
 	return true;
 }
 

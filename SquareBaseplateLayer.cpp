@@ -41,6 +41,8 @@ SquareBaseplateLayer::~SquareBaseplateLayer()
 	m_baseSquareList->clear();
 	delete m_baseSquareList;
 	s_pSquareBaseplateLayer = NULL;
+    m_drawNode->clear();
+    m_drawNodeGrid->clear();
 }
 
 bool SquareBaseplateLayer::init()
@@ -53,39 +55,63 @@ bool SquareBaseplateLayer::init()
     m_drawNode = DrawNode::create();
     addChild(m_drawNode, 1);
     
-	setBaseSize(BaseSize(6,6));
-	for (int i = 0; i <= getBaseSize().width * getBaseSize().height; i++)
-	{
-		switch (baselist[i])
-		{
-		case 0:
-			//上下翻转，因为gl坐标原点在左下。
-			m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
-				new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
-				));
-			break;
-		case 1:
-			//上下翻转，因为gl坐标原点在左下。
-			m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_MAP,
-				new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
-				));
-			break;
-		default:
-			//上下翻转，因为gl坐标原点在左下。
-			m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
-				new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
-				));
-			break;
-		}
-	}
+    m_drawNodeGrid = DrawNode::create();
+    addChild(m_drawNodeGrid,0);
     
     
     return true;
 }
 
+void SquareBaseplateLayer::readMapBuf(void *)
+{
+    
+}
+
+void SquareBaseplateLayer::readMapBufTest()
+{
+    setBaseSize(BaseSize(6,6));
+    for (int i = 0; i <= getBaseSize().width * getBaseSize().height; i++)
+    {
+        switch (baselist[i])
+        {
+            case 0:
+                //上下翻转，因为gl坐标原点在左下。
+                m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
+                                                       new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+                                                       ));
+                break;
+            case 1:
+                //上下翻转，因为gl坐标原点在左下。
+                m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_MAP,
+                                                       new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+                                                       ));
+                break;
+            default:
+                //上下翻转，因为gl坐标原点在左下。
+                m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
+                                                       new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+                                                       ));
+                break;
+        }
+    }
+}
+
+void SquareBaseplateLayer::createEmptyMap(BaseSize baseSize)
+{
+    setBaseSize(baseSize);
+    for (int i = 0; i <= getBaseSize().width * getBaseSize().height; i++)
+    {
+        //上下翻转，因为gl坐标原点在左下。
+        m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
+                                               new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+                                               ));
+    }
+}
+
 void SquareBaseplateLayer::drawBasesplate(Vec2 squareSize)
 {
 	setSquareSize(squareSize);
+    createGrid();
 	m_drawNode->clear();
     for(auto sq : *m_baseSquareList)
     {//todo 将绘制方法放在Square类中实现，加入描边功能
@@ -203,4 +229,14 @@ cocos2d::Vec2 SquareBaseplateLayer::getWorldPos(int index)
 	Vec2 worldPos = getParent()->convertToWorldSpace(getPosition() + squarePos);
 
 	return worldPos;
+}
+
+void SquareBaseplateLayer::drawGrid(bool flag)
+{
+    m_drawNodeGrid->setVisible(flag);
+}
+
+void SquareBaseplateLayer::createGrid()
+{
+    m_drawNodeGrid->drawRect(Vec2(0,0), Vec2(getBaseSize().width*getSquareSize().x,getBaseSize().height*getSquareSize().y), Color4F::GRAY);
 }

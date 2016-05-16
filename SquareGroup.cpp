@@ -138,6 +138,7 @@ SquareGroup::~SquareGroup()
 		delete sq.square;
 	}
     m_groupArray->clear();
+    delete m_groupArray;
     
 }
 
