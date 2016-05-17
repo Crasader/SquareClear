@@ -135,9 +135,18 @@ void MapMakerScene::returnToMainMenuCallback(cocos2d::Ref* pSender)
 void MapMakerScene::saveMapToFile()
 {
 	time_t t = time(0);
-	Data data;
-	data.copy((unsigned char *)&t, sizeof(t));
-	//localStorageInit("map");
+	char* mapNamechar = new char[10];
+	sprintf(mapNamechar, "%d", t);
+	std::string mapName = mapNamechar;
+	localStorageInit("map");
 	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
-	//localStorageFree();
+	std::string mapNameList;
+	if (localStorageGetItem("namelist", &mapNameList))
+	{
+
+	}
+	mapNameList = mapNameList + "|" + mapName;
+	localStorageSetItem("namelist", mapNameList);
+	localStorageSetItem(mapName,"11112");
+	localStorageFree();
 }
