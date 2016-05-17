@@ -47,7 +47,7 @@ bool SquareGroup::init()
 		return false;
 	}
 	m_groupArray = new std::vector<SquareInSquareGroup>;
-    _groupType = ST_NONE;
+
 	m_drawNode = DrawNode::create();
 	addChild(m_drawNode, 1);
 
@@ -111,7 +111,81 @@ bool SquareGroup::init()
 	);
 	addChild(m_arrowButtonRight);
 	//m_arrowButtonRight->setVisible(true);
-	setArrowButtonVisible(false);
+	setRightLeftArrowButtonVisible(false);
+
+	//上箭头
+	m_arrowButtonUpward = cocos2d::ui::Button::create("ButtonArrowOrangeUp.png");
+	m_arrowButtonUpward->setAnchorPoint(Vec2(0.5, 0));
+	m_arrowButtonUpward->setPosition(Vec2(m_squareSize.x * (s_Width/2), m_squareSize.y * (s_Height +1)));
+	m_arrowButtonUpward->addTouchEventListener(
+		[=](Ref*, cocos2d::ui::Widget::TouchEventType type)
+	{
+		switch (type)
+		{
+		case cocos2d::ui::Widget::TouchEventType::BEGAN:
+		{
+			SQUAREGROUP_TYPE _type = getGroupType();
+			_type = SQUAREGROUP_TYPE((int)_type - 1);
+			if (_type <= ST_NONE)
+			{
+				_type = SQUAREGROUP_TYPE(ST_MAX - 1);
+			}
+			SetGroupType(_type,getGroupColor());
+			m_drawNode->clear();
+			DrawGroup();
+		}
+		break;
+		case cocos2d::ui::Widget::TouchEventType::MOVED:
+
+			break;
+		case cocos2d::ui::Widget::TouchEventType::ENDED:
+		case cocos2d::ui::Widget::TouchEventType::CANCELED:
+
+			break;
+		default:
+			break;
+		}
+	}
+	);
+	addChild(m_arrowButtonUpward);
+
+	//下箭头
+	m_arrowButtonDownward = cocos2d::ui::Button::create("ButtonArrowOrangeDown.png");
+	m_arrowButtonDownward->setAnchorPoint(Vec2(0.5, 1));
+	m_arrowButtonDownward->setPosition(Vec2(m_squareSize.x * (s_Width / 2), m_squareSize.y * (-1)));
+	m_arrowButtonDownward->addTouchEventListener(
+		[=](Ref*, cocos2d::ui::Widget::TouchEventType type)
+	{
+		switch (type)
+		{
+		case cocos2d::ui::Widget::TouchEventType::BEGAN:
+		{
+			SQUAREGROUP_TYPE _type = getGroupType();
+			_type = SQUAREGROUP_TYPE((int)_type + 1);
+			if (_type >= ST_MAX)
+			{
+				_type = SQUAREGROUP_TYPE(ST_NONE + 1);
+			}
+			SetGroupType(_type, getGroupColor());
+			m_drawNode->clear();
+			DrawGroup();
+		}
+		break;
+		case cocos2d::ui::Widget::TouchEventType::MOVED:
+
+			break;
+		case cocos2d::ui::Widget::TouchEventType::ENDED:
+		case cocos2d::ui::Widget::TouchEventType::CANCELED:
+
+			break;
+		default:
+			break;
+		}
+	}
+	);
+	addChild(m_arrowButtonDownward);
+	setUpDownArrowButtonVisible(false);
+
 
 	return true;
 }
@@ -120,6 +194,8 @@ bool SquareGroup::init()
 SquareGroup::SquareGroup()
 : _isSelected(false)
 , m_groupState(SquareGroupState::SGS_ORIGIN)
+, _groupType(ST_NONE)
+, _groupColor(Square::SC_BLACK)
 {
 	m_squareSize = GamePlayLayer::s_squareSize;
     auto listener = EventListenerTouchOneByOne::create();
@@ -129,6 +205,7 @@ SquareGroup::SquareGroup()
     listener->onTouchCancelled = CC_CALLBACK_2(SquareGroup::onTouchCancelled, this);
     
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+	listener->setSwallowTouches(true);
 }
 
 SquareGroup::~SquareGroup()
@@ -157,6 +234,13 @@ void SquareGroup::SetGroupType(SquareGroup::SQUAREGROUP_TYPE type, Square::SQUAR
 
 void SquareGroup::CalcGroup(Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
 {
+	for (auto sq : *m_groupArray)
+	{
+		delete sq.square;
+	}
+	m_groupArray->clear();
+
+	setGroupColor(color);
     assert(_groupType > ST_NONE && _groupType < ST_MAX);
     for(int i = 0; i < s_Width * s_Height; i++)
     {
@@ -191,15 +275,15 @@ bool SquareGroup::checkTouchInSelf_Parent(Touch *touch)
     Vec2 touchPoint = touch->getLocation();
     //将点击的位置转换成父元素坐标系中的相对坐标
     Vec2 pt = getParent()->convertToNodeSpace(touchPoint);
-    printf("pt.x=%.1f, pt.y=%.1f\n", pt.x, pt.y);
+    //printf("pt.x=%.1f, pt.y=%.1f\n", pt.x, pt.y);
     //得到自己在父元素坐标系中的位置范围
     Rect rect=getBoundingBox();
-    printf("rect.l=%.1f, rect.b=%.1f, rect.r=%.1f, rect.t=%.1f\n",\
+    //printf("rect.l=%.1f, rect.b=%.1f, rect.r=%.1f, rect.t=%.1f\n",\
            rect.getMinX(), rect.getMinY(), rect.getMaxX(), rect.getMaxY());
     //判断是否点击落在自己的范围当中， 以上判断全是在父元素坐标系中进行计算
     if(rect.containsPoint(pt))
     {
-        printf("ccTouchBegan x=%.1f y=%.1f\n", touchPoint.x, touchPoint.y);
+        //printf("ccTouchBegan x=%.1f y=%.1f\n", touchPoint.x, touchPoint.y);
         return true;
     }
     return false;
@@ -225,17 +309,6 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 				}
 			}
 
-			//for (auto &sq : *m_groupArray)
-			//{
-			//	Vec2 centerPos = sq.square->getCenterPointInGroup(m_squareSize);
-			//	bool flag = GamePlayLayer::getInstance()->
-			//		getSquareBaseplateLayer()->
-			//		CheckSquareIsEmpty(getParent()->convertToWorldSpace(getPosition() + centerPos));
-			//	if (flag == false)
-			//	{
-			//		allCheckedEmpty = false;
-			//	}				
-			//}
 			Vec2 worldPlacePos, localSquarePos;
 			if (allCheckedEmpty)
 			{
@@ -291,14 +364,8 @@ void SquareGroup::onTouchEnded(Touch *touch, Event *event)
     {
         return;
     }
-    m_drawNode->clear();
-    DrawGroup();
-    drawArrow();
-//    if(!checkTouchInSelf_Parent(touch))
-//    {
-//        return;
-//    }
-    //setIsSelected(false);
+    //m_drawNode->clear();
+    //DrawGroup();
     
     return;
 }
@@ -319,11 +386,6 @@ void SquareGroup::onTouchCancelled(Touch *touch, Event *event)
     return;
 }
 
-void SquareGroup::drawArrow()
-{
-//    m_drawNode->drawTriangle(Vec2(-m_squareWitdh *2, m_squareHeight * 2),Vec2(-m_squareWitdh * 1, m_squareHeight * 4),Vec2(-m_squareWitdh * 1, -m_squareHeight * 0), Color4F(1,1,0,1));
-//    m_drawNode->drawTriangle(Vec2(m_squareWitdh * (SquareGroup::s_Width + 2), m_squareHeight * 2),Vec2(m_squareWitdh * (SquareGroup::s_Width + 1) * 1, m_squareHeight * 4),Vec2(m_squareWitdh * (SquareGroup::s_Width + 1), -m_squareHeight * 0), Color4F(1,1,0,1));
-}
 
 void SquareGroup::TurnLeft()
 {
@@ -351,12 +413,26 @@ void SquareGroup::SetSquareSize(Vec2 size)
 	setContentSize(Size(m_squareSize.x * SquareGroup::s_Width, m_squareSize.y * SquareGroup::s_Height));
 	m_arrowButtonLeft->setPosition(Vec2(-m_squareSize.x, m_squareSize.y * 2));
 	m_arrowButtonRight->setPosition(Vec2(m_squareSize.x * (s_Width + 1), m_squareSize.y * 2));
+	m_arrowButtonUpward->setPosition(Vec2(m_squareSize.x * (s_Width / 2), m_squareSize.y * (s_Height + 1)));
+	m_arrowButtonDownward->setPosition(Vec2(m_squareSize.x * (s_Width / 2), m_squareSize.y * (-1)));
+
 }
 
 void SquareGroup::setArrowButtonVisible(bool flag)
 {
+	setRightLeftArrowButtonVisible(flag);
+}
+
+void SquareGroup::setRightLeftArrowButtonVisible(bool flag)
+{
 	m_arrowButtonLeft->setVisible(flag);
 	m_arrowButtonRight->setVisible(flag);
+}
+
+void SquareGroup::setUpDownArrowButtonVisible(bool flag)
+{
+	m_arrowButtonUpward->setVisible(flag);
+	m_arrowButtonDownward->setVisible(flag);
 }
 
 void SquareGroup::CheckBaseEmptyAndSetBaseFrame()

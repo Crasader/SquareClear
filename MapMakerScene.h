@@ -27,5 +27,8 @@ public:
 	// implement the "static create()" method manually
 	CREATE_FUNC(MapMakerScene);
 
+private:
+	void saveMapToFile();
+
 };
 #endif // MapMakerScene_h__

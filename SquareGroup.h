@@ -80,20 +80,20 @@ public:
 	void TurnLeft();
 	void TurnRight();
 	
-	void setArrowButtonVisible(bool flag);
+	virtual void setArrowButtonVisible(bool flag);
+	void setRightLeftArrowButtonVisible(bool flag);
+	void setUpDownArrowButtonVisible(bool flag);
     // Overrides
     virtual bool onTouchBegan(Touch *touch, Event *event) override;
     virtual void onTouchMoved(Touch *touch, Event *event) override;
 	virtual void onTouchEnded(Touch *touch, Event *event) override;
     virtual void onTouchCancelled(Touch *touch, Event *event) override;
     
-    void drawArrow();
-    
     static const int s_Width;
     static const int s_Height;
     
     CC_SYNTHESIZE(bool, _isSelected, IsSelected);
-
+	CC_SYNTHESIZE(Square::SQUARE_COLOR, _groupColor, GroupColor);
     
 private:
     void CalcGroup(Square::SQUARE_COLOR color = Square::SC_BLACK);
@@ -101,8 +101,12 @@ private:
     SQUAREGROUP_TYPE _groupType;
 	Vec2 m_squareSize;
 	cocos2d::DrawNode * m_drawNode;
+	//左右箭头，调整group转向
 	cocos2d::ui::Button * m_arrowButtonLeft;
 	cocos2d::ui::Button * m_arrowButtonRight;
+	//上下箭头，切换group类型
+	cocos2d::ui::Button * m_arrowButtonUpward;
+	cocos2d::ui::Button * m_arrowButtonDownward;
 	SquareGroupState m_groupState;
 	int* m_groupShape;
 };

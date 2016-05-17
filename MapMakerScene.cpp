@@ -3,7 +3,27 @@
 #include "SquareGroup.h"
 #include "SquareBaseplateLayer.h"
 #include "Language.h"
+#include "storage/local-storage/LocalStorage.h"
 USING_NS_CC;
+
+class SquareGroupMapMaker : public SquareGroup
+{
+public:
+	CREATE_FUNC(SquareGroupMapMaker);
+
+	bool init() override
+	{
+		if (!SquareGroup::init())
+		{
+			return false;
+		}
+	}
+	virtual void setArrowButtonVisible(bool flag) override
+	{
+		setRightLeftArrowButtonVisible(flag);
+		setUpDownArrowButtonVisible(flag);
+	}
+};
 
 Scene* MapMakerScene::createScene()
 {
@@ -62,7 +82,7 @@ bool MapMakerScene::init()
     menuItemCreateGroup->setCallback(
     [=](Ref*)
     {
-        auto squareGroup = SquareGroup::create();
+        auto squareGroup = SquareGroupMapMaker::create();
         squareGroup->setPosition(Vec2(100,100));
         squareGroup->SetSquareGroup(Vec2(32,32),SquareGroup::SQUAREGROUP_TYPE::ST_Z,Square::SQUARE_COLOR::SC_GREEN);
         squareGroup->DrawGroup();
@@ -75,7 +95,7 @@ bool MapMakerScene::init()
     {
         for(Node* node:this->getChildren())
         {
-            SquareGroup* sg = dynamic_cast<SquareGroup*>(node);
+			SquareGroupMapMaker* sg = dynamic_cast<SquareGroupMapMaker*>(node);
             if(sg != nullptr)
             {
                 if(sg->getIsSelected())
@@ -90,7 +110,7 @@ bool MapMakerScene::init()
     menuItemSaveMap->setCallback(
     [=](Ref*)
     {
-        //todo save map
+		saveMapToFile();
     }
     );
     
@@ -98,7 +118,7 @@ bool MapMakerScene::init()
     operationMenu->alignItemsVerticallyWithPadding(20);
     auto s = Director::getInstance()->getWinSize();
     addChild(operationMenu);
-    operationMenu->setPosition(Vec2(s.width - 100, s.height / 2));
+    operationMenu->setPosition(Vec2(s.width / 2, s.height - 100));
     
     
 	return true;
@@ -110,4 +130,14 @@ void MapMakerScene::returnToMainMenuCallback(cocos2d::Ref* pSender)
 	scene->addChild(MainMenuScene::create());
 	Director::getInstance()->replaceScene(TransitionFlipY::create(0.5, scene));
 
+}
+
+void MapMakerScene::saveMapToFile()
+{
+	time_t t = time(0);
+	Data data;
+	data.copy((unsigned char *)&t, sizeof(t));
+	//localStorageInit("map");
+	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
+	//localStorageFree();
 }
