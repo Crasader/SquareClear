@@ -1,5 +1,6 @@
 #include "MainMenuScene.h"
 #include "MainMenuLayer.h"
+#include "2d\CCLayer.h"
 USING_NS_CC;
 
 Scene* MainMenuScene::createScene()
@@ -25,8 +26,11 @@ bool MainMenuScene::init()
 	}
 
     auto mainMenuLayer = MainMenuLayer::create();
-    
-    addChild(mainMenuLayer);
-    
+	auto selectLevelMenuLayer = SelectLevelMenuLayer::create();
+	auto layMulitplex = LayerMultiplex::create(mainMenuLayer, selectLevelMenuLayer,nullptr);
+	
+	addChild(layMulitplex);
+	mainMenuLayer->release();
+	selectLevelMenuLayer->release();
     return true;
 }

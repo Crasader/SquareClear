@@ -25,7 +25,18 @@ public:
     
 };
 
+class SelectLevelMenuLayer : public cocos2d::Layer
+{
+public:
+	CREATE_FUNC(SelectLevelMenuLayer);
 
+	SelectLevelMenuLayer();
+	~SelectLevelMenuLayer();
+
+	virtual bool init() override;
+
+
+};
 
 
 #endif /* MainMenuLayer_h */

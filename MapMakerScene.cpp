@@ -17,6 +17,7 @@ public:
 		{
 			return false;
 		}
+		return true;
 	}
 	virtual void setArrowButtonVisible(bool flag) override
 	{
@@ -136,7 +137,7 @@ void MapMakerScene::saveMapToFile()
 {
 	time_t t = time(0);
 	char* mapNamechar = new char[10];
-	sprintf(mapNamechar, "%d", t);
+	sprintf(mapNamechar, "%lld", t);
 	std::string mapName = mapNamechar;
 	localStorageInit("map");
 	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");

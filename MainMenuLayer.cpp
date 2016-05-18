@@ -11,6 +11,7 @@
 #include "Language.h"
 #include "GamePlayScene.h"
 #include "MapMakerScene.h"
+#include "storage/local-storage/LocalStorage.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -35,12 +36,12 @@ bool MainMenuLayer::init()
 
 	auto menuItemSelectMap = MenuItemFont::create(std::string(LocalizedCStringByKey("start_game")));
 	menuItemSelectMap->setCallback(
-		[](Ref*)
+		[=](Ref*)
 	{
-		auto scene = Scene::create();
+		/*auto scene = Scene::create();
 		scene->addChild(GamePlayScene::create());
-		Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
-
+		Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));*/
+		//static_cast<LayerMultiplex*>(_parent)->switchTo(0);
 	}
 		);
 
@@ -67,4 +68,49 @@ bool MainMenuLayer::init()
 
 
     return true;
+}
+
+
+SelectLevelMenuLayer::SelectLevelMenuLayer()
+{
+
+}
+SelectLevelMenuLayer::~SelectLevelMenuLayer()
+{
+
+}
+//注意：当字符串为空时，也会返回一个空字符串  
+void split(std::string& s, std::string& delim, std::vector< std::string >* ret)
+{
+	size_t last = 0;
+	size_t index = s.find_first_of(delim, last);
+	while (index != std::string::npos)
+	{
+		ret->push_back(s.substr(last, index - last));
+		last = index + 1;
+		index = s.find_first_of(delim, last);
+	}
+	if (index - last > 0)
+	{
+		ret->push_back(s.substr(last, index - last));
+	}
+}
+bool SelectLevelMenuLayer::init()
+{
+	if (!Layer::init())
+	{
+		return false;
+	}
+	localStorageInit("map");
+	std::string mapNameList;
+	if (localStorageGetItem("namelist", &mapNameList))
+	{
+
+	}
+	std::vector< std::string >* namelist = new std::vector< std::string >();
+	split(mapNameList,std::string("|"),namelist);
+
+	namelist->clear();
+	delete namelist;
+	return true;
 }
