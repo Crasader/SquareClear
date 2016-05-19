@@ -123,7 +123,8 @@ bool SelectLevelMenuLayer::init()
 	if (localStorageGetItem("namelist", &mapNameList))
 	{
 		std::vector< std::string >* namelist = new std::vector< std::string >();
-		split(mapNameList, std::string("|"), namelist);
+		std::string splitStr = "|";
+		split(mapNameList, splitStr, namelist);
 		for (auto mapName : *namelist)
 		{
 			std::string _mapBuffer;

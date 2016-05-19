@@ -137,7 +137,7 @@ void MapMakerScene::saveMapToFile()
 {
 	time_t t = time(0);
 	char* mapNamechar = new char[10];
-	sprintf(mapNamechar, "%lld", t);
+	sprintf(mapNamechar, "%ld", t);
 	std::string mapName = mapNamechar;
 	localStorageInit("map");
 	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
