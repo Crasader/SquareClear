@@ -72,9 +72,9 @@ bool MapMakerScene::init()
 	this->addChild(menu, 1);
     
     auto baseplateLayer = SquareBaseplateLayer::create();
-    baseplateLayer->createEmptyMap(BaseSize(10,10));
+    baseplateLayer->createEmptyMap(BaseSize(15,15));
     baseplateLayer->drawBasesplate(Vec2(32,32));
-    baseplateLayer->setPosition(Vec2(200,200));
+    baseplateLayer->setPosition(Vec2(100,200));
     addChild(baseplateLayer);
     
 
@@ -144,10 +144,14 @@ void MapMakerScene::saveMapToFile()
 	std::string mapNameList;
 	if (localStorageGetItem("namelist", &mapNameList))
 	{
-
+		mapNameList = mapNameList + "|" + mapName;
 	}
-	mapNameList = mapNameList + "|" + mapName;
+	else
+	{
+		mapNameList = mapName;
+	}
 	localStorageSetItem("namelist", mapNameList);
-	localStorageSetItem(mapName,"11112");
+	std::string buf = SquareBaseplateLayer::getInstance()->getMapBuf();
+	localStorageSetItem(mapName, buf);
 	localStorageFree();
 }

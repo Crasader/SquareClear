@@ -8,6 +8,9 @@
 
 #include "SquareBaseplateLayer.h"
 #include "Square.h"
+#include "json/document.h"
+#include "json/prettywriter.h"
+#include "json/stringbuffer.h"
 USING_NS_CC;
 int baselist[] = 
 {
@@ -62,7 +65,7 @@ bool SquareBaseplateLayer::init()
     return true;
 }
 
-void SquareBaseplateLayer::readMapBuf(void *)
+void SquareBaseplateLayer::readMapBuf(std::string buf)
 {
     
 }
@@ -159,9 +162,9 @@ int SquareBaseplateLayer::checkSquareIsEmptyOrFrame(cocos2d::Vec2 point)
 		return -1;
 	}
 
-	int _indexX = (int)(pos.x / getSquareSize().x);
-	int _indexY = getBaseSize().height - 1 - (int)(pos.y / getSquareSize().y);
-	int _index = _indexY * getBaseSize().width + _indexX;
+	unsigned int _indexX = (int)(pos.x / getSquareSize().x);
+	unsigned int _indexY = getBaseSize().height - 1 - (int)(pos.y / getSquareSize().y);
+	unsigned int _index = _indexY * getBaseSize().width + _indexX;
 	if (_index >= m_baseSquareList->size())
 	{
 		return -1;
@@ -186,7 +189,7 @@ void SquareBaseplateLayer::clearFrameSquare()
 	}
 }
 
-void SquareBaseplateLayer::PlaceSquare(int index)
+void SquareBaseplateLayer::PlaceSquare(unsigned int index)
 {
 	if (index >= m_baseSquareList->size())
 	{
@@ -203,7 +206,7 @@ void SquareBaseplateLayer::PlaceSquare(int index)
 	
 }
 
-void SquareBaseplateLayer::setFrame(int index)
+void SquareBaseplateLayer::setFrame(unsigned int index)
 {
 	if (index >= m_baseSquareList->size())
 	{
@@ -219,7 +222,7 @@ void SquareBaseplateLayer::setFrame(int index)
 	}
 }
 
-cocos2d::Vec2 SquareBaseplateLayer::getWorldPos(int index)
+cocos2d::Vec2 SquareBaseplateLayer::getWorldPos(unsigned int index)
 {
 	if (index >= m_baseSquareList->size())
 	{
@@ -239,4 +242,54 @@ void SquareBaseplateLayer::drawGrid(bool flag)
 void SquareBaseplateLayer::createGrid()
 {
     m_drawNodeGrid->drawRect(Vec2(0,0), Vec2(getBaseSize().width*getSquareSize().x,getBaseSize().height*getSquareSize().y), Color4F::GRAY);
+}
+
+std::string SquareBaseplateLayer::getMapBuf()
+{
+	rapidjson::Document document;
+	rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+	rapidjson::Value ret(rapidjson::kObjectType);
+
+	rapidjson::Value _versionKeyStrJson(rapidjson::kStringType);
+	_versionKeyStrJson.SetString("version", allocator);	
+	rapidjson::Value _versionValueStrJson(rapidjson::kStringType);
+	_versionValueStrJson.SetString("0", allocator);
+	ret.AddMember(_versionKeyStrJson, _versionValueStrJson, allocator);
+
+
+	rapidjson::Value _baseWidthKeyStrJson(rapidjson::kStringType);
+	_baseWidthKeyStrJson.SetString("map_witdh", allocator);
+	rapidjson::Value _baseWidthValueStrJson(rapidjson::kNumberType);
+	_baseWidthValueStrJson.SetInt(getBaseSize().width);
+	ret.AddMember(_baseWidthKeyStrJson, _baseWidthValueStrJson, allocator);
+
+
+	rapidjson::Value _baseHeightKeyStrJson(rapidjson::kStringType);
+	_baseHeightKeyStrJson.SetString("map_height", allocator);
+	rapidjson::Value _baseHeightValueStrJson(rapidjson::kNumberType);
+	_baseHeightValueStrJson.SetInt(getBaseSize().height);
+	ret.AddMember(_baseHeightKeyStrJson, _baseHeightValueStrJson, allocator);
+
+
+	rapidjson::Value _mapBufKeyStrJson(rapidjson::kStringType);
+	_mapBufKeyStrJson.SetString("map_buf", allocator);
+	std::ostringstream _mapBuf;
+	for (auto sq:*m_baseSquareList)
+	{
+		_mapBuf << (int)(sq.squareState);
+		//sq.squareState
+	}
+	rapidjson::Value _mapBufValueStrJson(rapidjson::kStringType);
+	_mapBufValueStrJson.SetString(_mapBuf.str().c_str(), allocator);
+	ret.AddMember(_mapBufKeyStrJson, _mapBufValueStrJson, allocator);
+
+
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	ret.Accept(writer);
+
+	return buffer.GetString();
+
+
 }

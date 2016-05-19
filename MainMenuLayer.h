@@ -22,7 +22,6 @@ public:
 
     virtual bool init() override;
     
-    
 };
 
 class SelectLevelMenuLayer : public cocos2d::Layer

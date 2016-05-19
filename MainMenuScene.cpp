@@ -30,7 +30,7 @@ bool MainMenuScene::init()
 	auto layMulitplex = LayerMultiplex::create(mainMenuLayer, selectLevelMenuLayer,nullptr);
 	
 	addChild(layMulitplex);
-	mainMenuLayer->release();
-	selectLevelMenuLayer->release();
+	//mainMenuLayer->release();
+	//selectLevelMenuLayer->release();
     return true;
 }

@@ -55,8 +55,10 @@ public:
 	}
 	virtual bool init() override;
     
-    void readMapBuf(void *);
+    void readMapBuf(std::string buf);
     void readMapBufTest();
+	//获得当前地图内容
+	std::string getMapBuf();
     void createEmptyMap(BaseSize baseSize);
 
     void drawBasesplate(cocos2d::Vec2 squareSize);
@@ -69,11 +71,11 @@ public:
 	//		如果不空，返回-1
 	int checkSquareIsEmptyOrFrame(cocos2d::Vec2 point);
 	//将index号的方块设为有边框
-	void setFrame(int index);
+	void setFrame(unsigned int index);
 	//获得index号方块的世界坐标
-	cocos2d::Vec2 getWorldPos(int index);
+	cocos2d::Vec2 getWorldPos(unsigned int index);
 	//将index号方块设为占用
-	void PlaceSquare(int index);
+	void PlaceSquare(unsigned int index);
     
     void drawGrid(bool flag);
     

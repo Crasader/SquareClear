@@ -12,6 +12,9 @@
 #include "GamePlayScene.h"
 #include "MapMakerScene.h"
 #include "storage/local-storage/LocalStorage.h"
+#include "json/document.h"
+#include "json/prettywriter.h"
+#include "json/stringbuffer.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -38,10 +41,8 @@ bool MainMenuLayer::init()
 	menuItemSelectMap->setCallback(
 		[=](Ref*)
 	{
-		/*auto scene = Scene::create();
-		scene->addChild(GamePlayScene::create());
-		Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));*/
-		//static_cast<LayerMultiplex*>(_parent)->switchTo(0);
+
+		static_cast<LayerMultiplex*>(_parent)->switchTo(1);
 	}
 		);
 
@@ -101,16 +102,66 @@ bool SelectLevelMenuLayer::init()
 	{
 		return false;
 	}
+	MenuItemFont::setFontName("fonts/arial.ttf");
+	MenuItemFont::setFontSize(40);
+	Vector<MenuItem*> menuItemList = Vector < MenuItem* >() ;
+
+	auto menuItemBack = MenuItemFont::create(std::string(LocalizedCStringByKey("back")));
+	menuItemBack->setCallback(
+		[=](Ref*)
+	{
+
+		static_cast<LayerMultiplex*>(_parent)->switchTo(0);
+	}
+	);
+	menuItemList.pushBack(menuItemBack);
+	
+
+	
 	localStorageInit("map");
 	std::string mapNameList;
 	if (localStorageGetItem("namelist", &mapNameList))
 	{
-
+		std::vector< std::string >* namelist = new std::vector< std::string >();
+		split(mapNameList, std::string("|"), namelist);
+		for (auto mapName : *namelist)
+		{
+			std::string _mapBuffer;
+			if (localStorageGetItem(mapName, &_mapBuffer))
+			{
+				rapidjson::Document _json;
+				_json.Parse<0>(_mapBuffer.c_str());
+				if (_json.HasParseError())
+				{
+					localStorageRemoveItem(mapName);
+				}
+				else
+				{
+					if (_json.IsObject())
+					{
+						auto menuItemMap = MenuItemFont::create(mapName);
+						menuItemList.pushBack(menuItemMap);
+					}
+					else
+					{
+						localStorageRemoveItem(mapName);
+					}
+				}
+				//SquareBaseplateLayer::getInstance()->readMapBuf(_mapBuffer);
+			}
+			else
+			{
+				localStorageRemoveItem(mapName);
+			}
+		}
+		namelist->clear();
+		delete namelist;
 	}
-	std::vector< std::string >* namelist = new std::vector< std::string >();
-	split(mapNameList,std::string("|"),namelist);
-
-	namelist->clear();
-	delete namelist;
+	
+	auto menu = Menu::createWithArray(menuItemList);
+	auto s = Director::getInstance()->getWinSize();
+	addChild(menu);
+	menu->setPosition(Vec2(s.width / 2, s.height / 2));
+	menu->alignItemsVerticallyWithPadding(20);
 	return true;
 }
