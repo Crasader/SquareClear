@@ -17,11 +17,26 @@ class SquareBaseplateLayer;
 class GamePlayLayer : public cocos2d::Layer
 {
 public:
-    CREATE_FUNC(GamePlayLayer);
-    
+    //CREATE_FUNC(GamePlayLayer);
+	static GamePlayLayer* create(std::string mapName)
+	{ 
+		GamePlayLayer *pRet = new(std::nothrow) GamePlayLayer();
+		if (pRet && pRet->init(mapName))
+		{
+			pRet->autorelease();
+			return pRet;
+		}
+		else
+		{
+			delete pRet;
+			pRet = nullptr;
+			return nullptr;
+		}
+	}
+
 	GamePlayLayer();
     ~GamePlayLayer();
-    virtual bool init() override;
+    virtual bool init(std::string mapName);
     
 
     int m_gameBoardHeight;

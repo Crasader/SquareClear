@@ -133,6 +133,7 @@ bool SquareGroup::init()
 			SetGroupType(_type,getGroupColor());
 			m_drawNode->clear();
 			DrawGroup();
+			setBaseplateFrameByGroup();
 		}
 		break;
 		case cocos2d::ui::Widget::TouchEventType::MOVED:
@@ -169,6 +170,7 @@ bool SquareGroup::init()
 			SetGroupType(_type, getGroupColor());
 			m_drawNode->clear();
 			DrawGroup();
+			setBaseplateFrameByGroup();
 		}
 		break;
 		case cocos2d::ui::Widget::TouchEventType::MOVED:
@@ -302,7 +304,14 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 			bool allCheckedEmpty = true;
 			for (auto &sq : *m_groupArray)
 			{
-				if (sq.indexInBaseplate == -1)
+				
+				if (sq.indexInBaseplate == -1 )
+				{
+					allCheckedEmpty = false;
+					break;
+				}
+				SquareBaseplateState state = SquareBaseplateLayer::getInstance()->getSquareState(sq.indexInBaseplate);
+				if (state != SQBS_EMPTY && state != SQBS_FRAME)
 				{
 					allCheckedEmpty = false;
 					break;
@@ -312,7 +321,10 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 			Vec2 worldPlacePos, localSquarePos;
 			if (allCheckedEmpty)
 			{
-				//for (auto &sq : *m_groupArray)
+				for (auto &sq : *m_groupArray)
+				{
+					SquareBaseplateLayer::getInstance()->SetSquarePlaced(sq.indexInBaseplate);
+				}
 				auto sq = (*m_groupArray)[0];
 				{
 					//将group放入baseplate
@@ -320,7 +332,7 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 
 					localSquarePos = Vec2(sq.square->getIndexX() * m_squareSize.x
 						, (sq.square->getIndexY()) * m_squareSize.y);
-
+					
 				}
 				setPosition(worldPlacePos - localSquarePos);
 			}
@@ -328,8 +340,10 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
         }
         return false;
     }
+	
     setIsSelected(true);
 	setArrowButtonVisible(true);
+	setBaseplateFrameByGroup(true);
     //m_drawNode->clear();
     //DrawGroup();
     
@@ -354,7 +368,7 @@ void SquareGroup::onTouchMoved(Touch *touch, Event *event)
     //pt.y -= m_squareHeight * 2;
     setPosition(pt);
 
-	CheckBaseEmptyAndSetBaseFrame();
+	setBaseplateFrameByGroup();
 
 }
 
@@ -394,7 +408,7 @@ void SquareGroup::TurnLeft()
 		sq.square->setXYIndex(s_Width - sq.square->getIndexY() - 1, sq.square->getIndexX());
 	}
 
-	CheckBaseEmptyAndSetBaseFrame();
+	setBaseplateFrameByGroup();
 
 }
 
@@ -404,7 +418,7 @@ void SquareGroup::TurnRight()
 	{
 		sq.square->setXYIndex(sq.square->getIndexY(), s_Height - sq.square->getIndexX() - 1);
 	}
-	CheckBaseEmptyAndSetBaseFrame();
+	setBaseplateFrameByGroup();
 }
 
 void SquareGroup::SetSquareSize(Vec2 size)
@@ -435,19 +449,22 @@ void SquareGroup::setUpDownArrowButtonVisible(bool flag)
 	m_arrowButtonDownward->setVisible(flag);
 }
 
-void SquareGroup::CheckBaseEmptyAndSetBaseFrame()
+void SquareGroup::setBaseplateFrameByGroup(bool force)
 {
 	SquareBaseplateLayer::getInstance()->clearFrameSquare();
 	for (auto &sq : *m_groupArray)
 	{
 		Vec2 centerPos = sq.square->getCenterPointInGroup(m_squareSize);
 		sq.indexInBaseplate = SquareBaseplateLayer::getInstance()->
-			checkSquareIsEmptyOrFrame(getParent()->convertToWorldSpace(getPosition() + centerPos));
+			getIndexByPos(getParent()->convertToWorldSpace(getPosition() + centerPos));
 
-		if (sq.indexInBaseplate != -1)
+		if (sq.indexInBaseplate != -1 
+			&& (SquareBaseplateLayer::getInstance()->getSquareState(sq.indexInBaseplate) != SQBS_SQUARE
+			|| force)
+			)
 		{
-			SquareBaseplateLayer::getInstance()->setFrame(sq.indexInBaseplate);
+			SquareBaseplateLayer::getInstance()->setSquareFrame(sq.indexInBaseplate);
 		}
 	}
-	SquareBaseplateLayer::getInstance()->drawBasesplate(m_squareSize);
+	//SquareBaseplateLayer::getInstance()->drawBasesplate(m_squareSize);
 }

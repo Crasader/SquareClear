@@ -9,11 +9,15 @@
 #include "GamePlayLayer.h"
 #include "SquareGroup.h"
 #include "SquareBaseplateLayer.h"
+#include "storage/local-storage/LocalStorage.h"
+#include "json/document.h"
+#include "json/prettywriter.h"
+#include "json/stringbuffer.h"
 USING_NS_CC;
 
 Vec2 GamePlayLayer::s_squareSize = Vec2(32, 32);
 GamePlayLayer* GamePlayLayer::s_pGamePlayLayer = NULL;
-bool GamePlayLayer::init()
+bool GamePlayLayer::init(std::string mapName)
 {
     if(!Layer::init())
     {
@@ -41,18 +45,43 @@ bool GamePlayLayer::init()
     
     //test
     //drawSquare();
-	auto sgtest = SquareGroup::create();
+	//auto sgtest = SquareGroup::create();
 
-	sgtest->SetSquareGroup(s_squareSize, SquareGroup::ST_L, Square::SC_BLUE);
-	sgtest->setPosition(Vec2(100,100));
-    //drawSquareGroup(sgtest, 100, 200);
-	sgtest->DrawGroup();
-	addChild(sgtest, 100);
+	//sgtest->SetSquareGroup(s_squareSize, SquareGroup::ST_L, Square::SC_BLUE);
+	//sgtest->setPosition(Vec2(100,100));
+ //   //drawSquareGroup(sgtest, 100, 200);
+	//sgtest->DrawGroup();
+	//addChild(sgtest, 100);
 
 	m_pSquareBaseplateLayer = SquareBaseplateLayer::create();
-	m_pSquareBaseplateLayer->setPosition(Vec2(200, 200));
-    m_pSquareBaseplateLayer->readMapBufTest();
-	addChild(m_pSquareBaseplateLayer, 90);
+	m_pSquareBaseplateLayer->setPosition(Vec2(50, 300));
+    //m_pSquareBaseplateLayer->readMapBufTest();
+	localStorageInit("map");
+	std::string _mapBuffer;
+	localStorageGetItem(mapName, &_mapBuffer);
+	m_pSquareBaseplateLayer->readMapBuf(_mapBuffer);
+	localStorageFree();
+	addChild(m_pSquareBaseplateLayer, 0);
+
+	rapidjson::Document _json;
+	_json.Parse<0>(_mapBuffer.c_str());
+	rapidjson::Value &groupListValue = _json["group_list"];
+	for (rapidjson::SizeType i = 0; i < groupListValue.Size(); i++)
+	{
+		rapidjson::Value& object = groupListValue[i];
+		rapidjson::Value& groupType = object["group_type"];
+		rapidjson::Value& groupColor = object["group_color"];
+
+		auto sg = SquareGroup::create();
+		sg->SetSquareGroup(s_squareSize, SquareGroup::SQUAREGROUP_TYPE(groupType.GetInt()), Square::SQUARE_COLOR(groupColor.GetInt()));
+		sg->setPosition(Vec2(50 + (i %5) * s_squareSize.x * 5, 50 + (i/5) * s_squareSize.y * 5));
+		sg->DrawGroup();
+		addChild(sg, 1);
+
+	}
+	
+
+	
 	m_pSquareBaseplateLayer->drawBasesplate(s_squareSize);
     return true;
 }

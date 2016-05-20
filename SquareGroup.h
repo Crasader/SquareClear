@@ -75,7 +75,7 @@ public:
     bool checkTouchInSelf_Parent(Touch *touch);    
 
 	//检查group中的所有square是否可以放置入baseplate。可以的话在baseplate上画个框
-	void CheckBaseEmptyAndSetBaseFrame();
+	void setBaseplateFrameByGroup(bool force = false);
 
 	void TurnLeft();
 	void TurnRight();

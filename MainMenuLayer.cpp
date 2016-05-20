@@ -15,6 +15,7 @@
 #include "json/document.h"
 #include "json/prettywriter.h"
 #include "json/stringbuffer.h"
+#include "SquareBaseplateLayer.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -141,6 +142,14 @@ bool SelectLevelMenuLayer::init()
 					if (_json.IsObject())
 					{
 						auto menuItemMap = MenuItemFont::create(mapName);
+						menuItemMap->setCallback(
+							[mapName](Ref * ref)
+						{
+							auto scene = Scene::create();
+							scene->addChild(GamePlayScene::create(mapName));
+							Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
+						}
+							);
 						menuItemList.pushBack(menuItemMap);
 					}
 					else
@@ -157,8 +166,10 @@ bool SelectLevelMenuLayer::init()
 		}
 		namelist->clear();
 		delete namelist;
+		
 	}
-	
+	localStorageFree();
+
 	auto menu = Menu::createWithArray(menuItemList);
 	auto s = Director::getInstance()->getWinSize();
 	addChild(menu);

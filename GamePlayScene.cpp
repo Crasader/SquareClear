@@ -11,13 +11,13 @@
 #include "MainMenuScene.h"
 USING_NS_CC;
 
-Scene* GamePlayScene::createScene()
+Scene* GamePlayScene::createScene(std::string mapName)
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
     
     // 'layer' is an autorelease object
-    auto layer = GamePlayScene::create();
+	auto layer = GamePlayScene::create(mapName);
     
     // add layer as a child to scene
     scene->addChild(layer);
@@ -27,7 +27,7 @@ Scene* GamePlayScene::createScene()
 }
 
 // on "init" you need to initialize your instance
-bool GamePlayScene::init()
+bool GamePlayScene::init(std::string mapName)
 {
     //////////////////////////////
     // 1. super init first
@@ -63,7 +63,7 @@ bool GamePlayScene::init()
     // add a label shows "Hello World"
     // create and initialize a label
     
-	auto gamePlayLayer = GamePlayLayer::create();
+	auto gamePlayLayer = GamePlayLayer::create(mapName);
 	gamePlayLayer->setAnchorPoint(Vec2(0, 0));
 	gamePlayLayer->setPosition(Vec2(0, 0));
 	this->addChild(gamePlayLayer);

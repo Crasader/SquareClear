@@ -54,7 +54,8 @@ public:
 		return s_pSquareBaseplateLayer;
 	}
 	virtual bool init() override;
-    
+	virtual void update(float delta) override;
+
     void readMapBuf(std::string buf);
     void readMapBufTest();
 	//获得当前地图内容
@@ -69,14 +70,17 @@ public:
 	//检查坐标点对应的基板是否为空方块
 	//return 如果为空。则返回对应的index
 	//		如果不空，返回-1
-	int checkSquareIsEmptyOrFrame(cocos2d::Vec2 point);
+	int getIndexByPos(cocos2d::Vec2 point);
 	//将index号的方块设为有边框
-	void setFrame(unsigned int index);
+	void setSquareFrame(unsigned int index);
 	//获得index号方块的世界坐标
 	cocos2d::Vec2 getWorldPos(unsigned int index);
 	//将index号方块设为占用
-	void PlaceSquare(unsigned int index);
-    
+	void SetSquarePlaced(unsigned int index);
+	//将index号方块设为空 
+	void SetSquareEmpty(unsigned int index);
+	//获得index号方块的状态
+	SquareBaseplateState getSquareState(unsigned int index);
     void drawGrid(bool flag);
     
 	CC_SYNTHESIZE(BaseSize, _baseSize, BaseSize);

@@ -11,6 +11,7 @@
 #include "json/document.h"
 #include "json/prettywriter.h"
 #include "json/stringbuffer.h"
+#include "SquareGroup.h"
 USING_NS_CC;
 int baselist[] = 
 {
@@ -61,13 +62,56 @@ bool SquareBaseplateLayer::init()
     m_drawNodeGrid = DrawNode::create();
     addChild(m_drawNodeGrid,0);
     
-    
+	this->scheduleUpdate();
+
     return true;
 }
 
 void SquareBaseplateLayer::readMapBuf(std::string buf)
 {
-    
+	rapidjson::Document _json;
+	_json.Parse<0>(buf.c_str());
+	rapidjson::Value &versionValue = _json["version"];
+	if (versionValue.GetInt() == 0)
+	{
+		rapidjson::Value &witdhValue = _json["map_witdh"];
+		rapidjson::Value &heightValue = _json["map_height"];
+
+		setBaseSize(BaseSize(witdhValue.GetInt(), heightValue.GetInt()));
+
+		rapidjson::Value &mapBufValue = _json["map_buf"];
+		std::string mapBuf = mapBufValue.GetString();
+		for (int i = 0; i <= getBaseSize().width * getBaseSize().height; i++)
+		{
+			switch (mapBuf[i])
+			{
+			case '0':
+				//上下翻转，因为gl坐标原点在左下。
+				m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
+					new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+					));
+				break;
+			case '1':
+				//上下翻转，因为gl坐标原点在左下。
+				m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_MAP,
+					new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+					));
+				break;
+			default:
+				//上下翻转，因为gl坐标原点在左下。
+				m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
+					new Square(i % getBaseSize().width, getBaseSize().height - 1 - i / getBaseSize().height, Square::SC_RED)
+					));
+				break;
+			}
+		}
+
+	}
+	else
+	{
+		return;
+	}
+
 }
 
 void SquareBaseplateLayer::readMapBufTest()
@@ -102,7 +146,7 @@ void SquareBaseplateLayer::readMapBufTest()
 void SquareBaseplateLayer::createEmptyMap(BaseSize baseSize)
 {
     setBaseSize(baseSize);
-    for (int i = 0; i <= getBaseSize().width * getBaseSize().height; i++)
+    for (int i = 0; i < getBaseSize().width * getBaseSize().height; i++)
     {
         //上下翻转，因为gl坐标原点在左下。
         m_baseSquareList->push_back(BaseSquare(SquareBaseplateState::SQBS_EMPTY,
@@ -150,7 +194,7 @@ void SquareBaseplateLayer::drawBasesplate()
 	drawBasesplate(getSquareSize());
 }
 
-int SquareBaseplateLayer::checkSquareIsEmptyOrFrame(cocos2d::Vec2 point)
+int SquareBaseplateLayer::getIndexByPos(cocos2d::Vec2 point)
 {
 	Vec2 pos =  convertToNodeSpace(point);
 	if (pos.x < 0 || pos.x > getBaseSize().width * getSquareSize().x)
@@ -169,13 +213,14 @@ int SquareBaseplateLayer::checkSquareIsEmptyOrFrame(cocos2d::Vec2 point)
 	{
 		return -1;
 	}
-	if ((*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_EMPTY
-		|| (*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_FRAME
-		)
-	{
-		return _index;
-	}
-	return -1;
+	return _index;
+	//if ((*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_EMPTY
+	//	|| (*m_baseSquareList)[_index].squareState == SquareBaseplateState::SQBS_FRAME
+	//	)
+	//{
+	//	return _index;
+	//}
+	//return -1;
 }
 
 void SquareBaseplateLayer::clearFrameSquare()
@@ -189,7 +234,7 @@ void SquareBaseplateLayer::clearFrameSquare()
 	}
 }
 
-void SquareBaseplateLayer::PlaceSquare(unsigned int index)
+void SquareBaseplateLayer::SetSquarePlaced(unsigned int index)
 {
 	if (index >= m_baseSquareList->size())
 	{
@@ -206,21 +251,48 @@ void SquareBaseplateLayer::PlaceSquare(unsigned int index)
 	
 }
 
-void SquareBaseplateLayer::setFrame(unsigned int index)
+void SquareBaseplateLayer::SetSquareEmpty(unsigned int index)
 {
 	if (index >= m_baseSquareList->size())
 	{
 		assert(0);
 	}
-	if ((*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_EMPTY || (*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_FRAME)
+	if ((*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_SQUARE || (*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_FRAME)
 	{
-		(*m_baseSquareList)[index].squareState = SquareBaseplateState::SQBS_FRAME;
+		(*m_baseSquareList)[index].squareState = SquareBaseplateState::SQBS_EMPTY;
 	}
 	else
 	{
 		assert(0);
 	}
 }
+
+void SquareBaseplateLayer::setSquareFrame(unsigned int index)
+{
+	if (index >= m_baseSquareList->size())
+	{
+		assert(0);
+	}
+	if ((*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_EMPTY || (*m_baseSquareList)[index].squareState == SquareBaseplateState::SQBS_SQUARE)
+	{
+		(*m_baseSquareList)[index].squareState = SquareBaseplateState::SQBS_FRAME;
+	}
+	/*else
+	{
+	assert(0);
+	}*/
+}
+
+
+SquareBaseplateState SquareBaseplateLayer::getSquareState(unsigned int index)
+{
+	if (index >= m_baseSquareList->size())
+	{
+		assert(0);
+	}
+	return (*m_baseSquareList)[index].squareState;
+}
+
 
 cocos2d::Vec2 SquareBaseplateLayer::getWorldPos(unsigned int index)
 {
@@ -251,39 +323,52 @@ std::string SquareBaseplateLayer::getMapBuf()
 
 	rapidjson::Value ret(rapidjson::kObjectType);
 
-	rapidjson::Value _versionKeyStrJson(rapidjson::kStringType);
-	_versionKeyStrJson.SetString("version", allocator);	
-	rapidjson::Value _versionValueStrJson(rapidjson::kStringType);
-	_versionValueStrJson.SetString("0", allocator);
-	ret.AddMember(_versionKeyStrJson, _versionValueStrJson, allocator);
+	//version
+	ret.AddMember("version", rapidjson::Value(0), allocator);
 
+	ret.AddMember("map_witdh", rapidjson::Value(getBaseSize().width), allocator);
 
-	rapidjson::Value _baseWidthKeyStrJson(rapidjson::kStringType);
-	_baseWidthKeyStrJson.SetString("map_witdh", allocator);
-	rapidjson::Value _baseWidthValueStrJson(rapidjson::kNumberType);
-	_baseWidthValueStrJson.SetInt(getBaseSize().width);
-	ret.AddMember(_baseWidthKeyStrJson, _baseWidthValueStrJson, allocator);
+	ret.AddMember("map_height", rapidjson::Value(getBaseSize().height), allocator);
 
-
-	rapidjson::Value _baseHeightKeyStrJson(rapidjson::kStringType);
-	_baseHeightKeyStrJson.SetString("map_height", allocator);
-	rapidjson::Value _baseHeightValueStrJson(rapidjson::kNumberType);
-	_baseHeightValueStrJson.SetInt(getBaseSize().height);
-	ret.AddMember(_baseHeightKeyStrJson, _baseHeightValueStrJson, allocator);
-
-
+	//地图内容
 	rapidjson::Value _mapBufKeyStrJson(rapidjson::kStringType);
 	_mapBufKeyStrJson.SetString("map_buf", allocator);
 	std::ostringstream _mapBuf;
 	for (auto sq:*m_baseSquareList)
 	{
-		_mapBuf << (int)(sq.squareState);
+		switch (sq.squareState)
+		{
+		case SQBS_EMPTY:
+			_mapBuf << (int)(SquareBaseplateState::SQBS_MAP);
+			break;
+		case SQBS_SQUARE:
+			_mapBuf << (int)(SquareBaseplateState::SQBS_EMPTY);
+			break;
+		default:
+			_mapBuf << (int)(SquareBaseplateState::SQBS_EMPTY);
+			break;
+		}
+		
 		//sq.squareState
 	}
 	rapidjson::Value _mapBufValueStrJson(rapidjson::kStringType);
 	_mapBufValueStrJson.SetString(_mapBuf.str().c_str(), allocator);
 	ret.AddMember(_mapBufKeyStrJson, _mapBufValueStrJson, allocator);
 
+	//group信息
+	rapidjson::Value _groupListValueArrayJson(rapidjson::kArrayType);
+	for (auto node : _parent->getChildren())
+	{
+		auto sg = dynamic_cast<SquareGroup*>(node);
+		if (sg != nullptr)
+		{
+			rapidjson::Value _sgObj(rapidjson::kObjectType);
+			_sgObj.AddMember("group_type", rapidjson::Value((int)(sg->getGroupType())), allocator);
+			_sgObj.AddMember("group_color", rapidjson::Value((int)(sg->getGroupColor())), allocator);
+			_groupListValueArrayJson.PushBack(_sgObj, allocator);
+		}
+	}
+	ret.AddMember("group_list", _groupListValueArrayJson,allocator);
 
 	rapidjson::StringBuffer buffer;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -292,4 +377,9 @@ std::string SquareBaseplateLayer::getMapBuf()
 	return buffer.GetString();
 
 
+}
+
+void SquareBaseplateLayer::update(float delta)
+{
+	drawBasesplate();
 }
