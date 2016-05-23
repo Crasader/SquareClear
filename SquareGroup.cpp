@@ -63,7 +63,6 @@ bool SquareGroup::init()
 			case cocos2d::ui::Widget::TouchEventType::BEGAN:
 			{
 				TurnLeft();
-				m_drawNode->clear();
 				DrawGroup();
 			}
 				break;
@@ -93,7 +92,6 @@ bool SquareGroup::init()
 		case cocos2d::ui::Widget::TouchEventType::BEGAN:
 		{
 			TurnRight();
-			m_drawNode->clear();
 			DrawGroup();
 		}
 		break;
@@ -131,7 +129,6 @@ bool SquareGroup::init()
 				_type = SQUAREGROUP_TYPE(ST_MAX - 1);
 			}
 			SetGroupType(_type,getGroupColor());
-			m_drawNode->clear();
 			DrawGroup();
 			setBaseplateFrameByGroup();
 		}
@@ -168,7 +165,6 @@ bool SquareGroup::init()
 				_type = SQUAREGROUP_TYPE(ST_NONE + 1);
 			}
 			SetGroupType(_type, getGroupColor());
-			m_drawNode->clear();
 			DrawGroup();
 			setBaseplateFrameByGroup();
 		}
@@ -194,8 +190,7 @@ bool SquareGroup::init()
 
 
 SquareGroup::SquareGroup()
-: _isSelected(false)
-, m_groupState(SquareGroupState::SGS_ORIGIN)
+: _groupState(SquareGroupState::SGS_ORIGIN)
 , _groupType(ST_NONE)
 , _groupColor(Square::SC_BLACK)
 {
@@ -255,10 +250,19 @@ void SquareGroup::CalcGroup(Square::SQUARE_COLOR color /*= Square::SC_BLACK*/)
 
 void SquareGroup::DrawGroup()
 {
+	m_drawNode->clear();
     for (auto &sq : *m_groupArray)
     {
 		//drawOneSquare(m_squareSize, sq.second);
-		sq.square->drawSquare(m_drawNode, m_squareSize);
+		if (getGroupState() == SGS_SELECTED)
+		{
+			sq.square->drawSquareWithFrame(m_drawNode, m_squareSize,Color4F::BLUE);
+		}
+		else
+		{
+			sq.square->drawSquare(m_drawNode, m_squareSize);
+		}
+
     }
 }
 
@@ -295,9 +299,9 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 {
     if(!checkTouchInSelf_Parent(touch))
     {
-        if(getIsSelected())
+        if(getGroupState() == SGS_SELECTED)
         {
-            setIsSelected(false);
+			
 			setArrowButtonVisible(false);
 
 			//检查是否所有放块可以放入baseplate中
@@ -335,24 +339,30 @@ bool SquareGroup::onTouchBegan(Touch *touch, Event *event)
 					
 				}
 				setPosition(worldPlacePos - localSquarePos);
+				setGroupState(SGS_PLACED);
+			}
+			else
+			{
+				setGroupState(SGS_UNSELECTED);
 			}
 
         }
+		DrawGroup();
         return false;
     }
 	
-    setIsSelected(true);
+	
 	setArrowButtonVisible(true);
-	setBaseplateFrameByGroup(true);
-    //m_drawNode->clear();
-    //DrawGroup();
+	setBaseplateFrameByGroup(getGroupState() == SGS_PLACED);
+	setGroupState(SGS_SELECTED);
+    DrawGroup();
     
     return true;
 }
 
 void SquareGroup::onTouchMoved(Touch *touch, Event *event)
 {
-    if(!getIsSelected())
+    if(getGroupState() != SGS_SELECTED)
     {
         return;
     }
@@ -374,7 +384,7 @@ void SquareGroup::onTouchMoved(Touch *touch, Event *event)
 
 void SquareGroup::onTouchEnded(Touch *touch, Event *event)
 {
-    if(!getIsSelected())
+	if (getGroupState() != SGS_SELECTED)
     {
         return;
     }
@@ -386,7 +396,7 @@ void SquareGroup::onTouchEnded(Touch *touch, Event *event)
 
 void SquareGroup::onTouchCancelled(Touch *touch, Event *event)
 {
-    if(!getIsSelected())
+	if (getGroupState() != SGS_SELECTED)
     {
         return;
     }

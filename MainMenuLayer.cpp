@@ -117,9 +117,8 @@ bool SelectLevelMenuLayer::init()
 	);
 	menuItemList.pushBack(menuItemBack);
 	
-
-	
-	localStorageInit("map");
+	std::string path = FileUtils::getInstance()->getWritablePath();	
+	localStorageInit(path + "/map");
 	std::string mapNameList;
 	if (localStorageGetItem("namelist", &mapNameList))
 	{

@@ -179,6 +179,7 @@ void SquareBaseplateLayer::drawBasesplate(Vec2 squareSize)
 				sq.pSquare->drawFrame(m_drawNode, squareSize,Color4F::YELLOW);
 				break;
 			case SQBS_SQUARE:
+				sq.pSquare->drawFrame(m_drawNode, squareSize, Color4F::RED);
 				break;
 			default:
 				break;

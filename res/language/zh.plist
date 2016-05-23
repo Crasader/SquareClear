@@ -6,5 +6,13 @@
     <string>开始游戏</string>
     <key>map_maker</key>
     <string>制作地图</string>
+    <key>create_group</key>
+    <string>创建方块组</string>
+    <key>delete_group</key>
+    <string>删除方块组</string>
+    <key>save_map</key>
+    <string>保存地图</string>
+    <key>back</key>
+    <string>返回</string>
 </dict>
 </plist>

@@ -99,7 +99,7 @@ bool MapMakerScene::init()
 			SquareGroupMapMaker* sg = dynamic_cast<SquareGroupMapMaker*>(node);
             if(sg != nullptr)
             {
-                if(sg->getIsSelected())
+                if(sg->getGroupState() == SGS_SELECTED)
                 {
                     this->removeChild(node);
                 }
@@ -139,7 +139,9 @@ void MapMakerScene::saveMapToFile()
 	char* mapNamechar = new char[10];
 	sprintf(mapNamechar, "%ld", t);
 	std::string mapName = mapNamechar;
-	localStorageInit("map");
+
+	std::string path = FileUtils::getInstance()->getWritablePath();
+	localStorageInit(path + "/map");
 	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
 	std::string mapNameList;
 	if (localStorageGetItem("namelist", &mapNameList))

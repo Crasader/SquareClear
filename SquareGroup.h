@@ -30,7 +30,8 @@ enum SquareGroupState
 {
 	SGS_ORIGIN = 0,
 	SGS_SELECTED,
-	SGS_PLACED
+	SGS_UNSELECTED,
+	SGS_PLACED,
 };
 class SquareGroup : public Layer
 {
@@ -92,9 +93,8 @@ public:
     static const int s_Width;
     static const int s_Height;
     
-    CC_SYNTHESIZE(bool, _isSelected, IsSelected);
 	CC_SYNTHESIZE(Square::SQUARE_COLOR, _groupColor, GroupColor);
-    
+	CC_SYNTHESIZE(SquareGroupState, _groupState, GroupState);
 private:
     void CalcGroup(Square::SQUARE_COLOR color = Square::SC_BLACK);
 	std::vector<SquareInSquareGroup> *m_groupArray;
@@ -107,7 +107,6 @@ private:
 	//上下箭头，切换group类型
 	cocos2d::ui::Button * m_arrowButtonUpward;
 	cocos2d::ui::Button * m_arrowButtonDownward;
-	SquareGroupState m_groupState;
 	int* m_groupShape;
 };
 #endif /* defined(__SquareClear__SquareGroup__) */

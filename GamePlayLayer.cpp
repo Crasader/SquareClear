@@ -56,7 +56,10 @@ bool GamePlayLayer::init(std::string mapName)
 	m_pSquareBaseplateLayer = SquareBaseplateLayer::create();
 	m_pSquareBaseplateLayer->setPosition(Vec2(50, 300));
     //m_pSquareBaseplateLayer->readMapBufTest();
-	localStorageInit("map");
+
+	std::string path = FileUtils::getInstance()->getWritablePath();
+	localStorageInit(path + "/map");
+
 	std::string _mapBuffer;
 	localStorageGetItem(mapName, &_mapBuffer);
 	m_pSquareBaseplateLayer->readMapBuf(_mapBuffer);
