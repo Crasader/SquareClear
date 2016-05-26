@@ -20,10 +20,18 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
 				   ../../../Classes/MapMakerScene.cpp \
 				   ../../../Classes/Square.cpp \
 				   ../../../Classes/SquareBaseplateLayer.cpp \
-				   ../../../Classes/SquareGroup.cpp 
+				   ../../../Classes/SquareGroup.cpp \
+				   ../../../Classes/Sqlite3Database/CppSQLite3.cpp \
+				   ../../../Classes/Sqlite3Database/CppSQLite3Table.cpp \
+				   ../../../Classes/Sqlite3Database/CppSQLite3Query.cpp \
+				   ../../../Classes/Sqlite3Database/CppSQLite3Statement.cpp \
+				   ../../../Classes/Sqlite3Database/CppSQLite3DB.cpp \
+				   ../../../Classes/Library/sqlite/sqlite3.c
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../cocos2d/cocos/storage/local-storage
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../Classes/Sqlite3Database
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../Classes/Library/sqlite
 
 # _COCOS_HEADER_ANDROID_BEGIN
 # _COCOS_HEADER_ANDROID_END
