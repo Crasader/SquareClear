@@ -4,6 +4,8 @@
 #include "SquareBaseplateLayer.h"
 #include "Language.h"
 #include "storage/local-storage/LocalStorage.h"
+#include "Sqlite3Database/CppSQLite3DB.h"
+#include "Library/guid/xguid.h"
 USING_NS_CC;
 
 class SquareGroupMapMaker : public SquareGroup
@@ -174,21 +176,26 @@ void MapMakerScene::saveMapToFile()
 	char* mapSaveTimeChar = new char[10];
 	sprintf(mapSaveTimeChar, "%ld", t);
 	std::string mapName = (getChildByName<TextFieldTTF*>("tbMapName"))->getString();
-
 	std::string path = FileUtils::getInstance()->getWritablePath();
-	localStorageInit(path + "/map");
-	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
-	std::string mapNameList;
-	if (localStorageGetItem("namelist", &mapNameList))
-	{
-		mapNameList = mapNameList + "|" + mapName;
-	}
-	else
-	{
-		mapNameList = mapName;
-	}
-	localStorageSetItem("namelist", mapNameList);
-	std::string buf = SquareBaseplateLayer::getInstance()->getMapBuf();
-	localStorageSetItem(mapName, buf);
-	localStorageFree();
+
+	CppSQLite3DB * db = new CppSQLite3DB();
+	db->Open(std::string(path + "/map.db").c_str());
+	std::string guid = XGUID::CreateGuidString();
+	db->ExecDML("");
+	db->Close();
+	//localStorageInit(path + "/map");
+	////localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
+	//std::string mapNameList;
+	//if (localStorageGetItem("namelist", &mapNameList))
+	//{
+	//	mapNameList = mapNameList + "|" + mapName;
+	//}
+	//else
+	//{
+	//	mapNameList = mapName;
+	//}
+	//localStorageSetItem("namelist", mapNameList);
+	//std::string buf = SquareBaseplateLayer::getInstance()->getMapBuf();
+	//localStorageSetItem(mapName, buf);
+	//localStorageFree();
 }
