@@ -1,6 +1,6 @@
 #include "MainMenuScene.h"
 #include "MainMenuLayer.h"
-#include "2d\CCLayer.h"
+
 USING_NS_CC;
 
 Scene* MainMenuScene::createScene()
