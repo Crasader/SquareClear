@@ -4,6 +4,8 @@
 #include "SquareBaseplateLayer.h"
 #include "Language.h"
 #include "storage/local-storage/LocalStorage.h"
+#include "Sqlite3Database/CppSQLite3DB.h"
+#include "Library/guid/xguid.h"
 USING_NS_CC;
 
 class SquareGroupMapMaker : public SquareGroup
@@ -59,6 +61,41 @@ bool MapMakerScene::init()
 	}
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+	auto s = Director::getInstance()->getWinSize();
+	//input map name
+	auto pTextField = TextFieldTTF::textFieldWithPlaceHolder(LocalizedCStringByKey("input_map_name"),
+		"fonts/arial.ttf",
+		48);
+	addChild(pTextField,0,"tbMapName");
+	pTextField->setPosition(Vec2(s.width / 2,s.height - 250));
+
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = [pTextField](Touch* touch, Event*)
+	{
+		auto beginPos = touch->getLocation();
+		Rect rect;
+		rect.size = pTextField->getContentSize();
+		auto clicked = isScreenPointInRect(beginPos, Camera::getVisitingCamera(), pTextField->getWorldToNodeTransform(), rect, nullptr);
+		if (clicked)
+		{
+			return true;
+		}
+		pTextField->detachWithIME();
+		return false;
+	};
+	listener->onTouchEnded = [pTextField](Touch* touch, Event* event)
+	{
+		auto endPos = touch->getLocation();
+		Rect rect;
+		rect.size = pTextField->getContentSize();
+		auto clicked = isScreenPointInRect(endPos, Camera::getVisitingCamera(), pTextField->getWorldToNodeTransform(), rect, nullptr);
+		if (clicked)
+		{
+			pTextField->attachWithIME();
+		}
+
+	};
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
 	auto returnToMainMenuItem = MenuItemImage::create(
 		"CloseNormal.png",
@@ -117,7 +154,7 @@ bool MapMakerScene::init()
     
     auto operationMenu = Menu::create(menuItemCreateGroup,menuItemDeleteSelectedGroup,menuItemSaveMap, NULL);
     operationMenu->alignItemsVerticallyWithPadding(20);
-    auto s = Director::getInstance()->getWinSize();
+    
     addChild(operationMenu);
     operationMenu->setPosition(Vec2(s.width / 2, s.height - 100));
     
@@ -136,24 +173,29 @@ void MapMakerScene::returnToMainMenuCallback(cocos2d::Ref* pSender)
 void MapMakerScene::saveMapToFile()
 {
 	time_t t = time(0);
-	char* mapNamechar = new char[10];
-	sprintf(mapNamechar, "%ld", t);
-	std::string mapName = mapNamechar;
-
+	char* mapSaveTimeChar = new char[10];
+	sprintf(mapSaveTimeChar, "%ld", t);
+	std::string mapName = (getChildByName<TextFieldTTF*>("tbMapName"))->getString();
 	std::string path = FileUtils::getInstance()->getWritablePath();
-	localStorageInit(path + "/map");
-	//localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
-	std::string mapNameList;
-	if (localStorageGetItem("namelist", &mapNameList))
-	{
-		mapNameList = mapNameList + "|" + mapName;
-	}
-	else
-	{
-		mapNameList = mapName;
-	}
-	localStorageSetItem("namelist", mapNameList);
-	std::string buf = SquareBaseplateLayer::getInstance()->getMapBuf();
-	localStorageSetItem(mapName, buf);
-	localStorageFree();
+
+	CppSQLite3DB * db = new CppSQLite3DB();
+	db->Open(std::string(path + "/map.db").c_str());
+	std::string guid = XGUID::CreateGuidString();
+	db->ExecDML("");
+	db->Close();
+	//localStorageInit(path + "/map");
+	////localStorageSetItem(reinterpret_cast<const char*>(data.getBytes()), "1111");
+	//std::string mapNameList;
+	//if (localStorageGetItem("namelist", &mapNameList))
+	//{
+	//	mapNameList = mapNameList + "|" + mapName;
+	//}
+	//else
+	//{
+	//	mapNameList = mapName;
+	//}
+	//localStorageSetItem("namelist", mapNameList);
+	//std::string buf = SquareBaseplateLayer::getInstance()->getMapBuf();
+	//localStorageSetItem(mapName, buf);
+	//localStorageFree();
 }

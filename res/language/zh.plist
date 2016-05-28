@@ -14,5 +14,7 @@
     <string>保存地图</string>
     <key>back</key>
     <string>返回</string>
+    <key>input_map_name</key>
+    <string>请输入地图名字</string>
 </dict>
 </plist>
