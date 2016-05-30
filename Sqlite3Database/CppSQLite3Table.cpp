@@ -17,12 +17,12 @@ CppSQLite3Table::CppSQLite3Table(const CppSQLite3Table &rTable)
 	mnRows = rTable.mnRows;
 	mnCurrentRow = rTable.mnCurrentRow;
 	mpaszResults = rTable.mpaszResults;
-	const_cast<CppSQLite3Table&>(rTable).mpaszResults = 0; //µ±±í¸´ÖÆÊ±£¬Ïú»ÙÔ­À´µÄ±í£¬·ÀÖ¹¶ªÊ§ĞŞ¸Ä  
+	const_cast<CppSQLite3Table&>(rTable).mpaszResults = 0; //å½“è¡¨å¤åˆ¶æ—¶ï¼Œé”€æ¯åŸæ¥çš„è¡¨ï¼Œé˜²æ­¢ä¸¢å¤±ä¿®æ”¹  
 }
 
 CppSQLite3Table::CppSQLite3Table(char **paszResults, int nRows, int nCols)
 {
-	mpaszResults = paszResults; //¸ø³öÒ»¸öÒ»Î¬Ö¸ÕëÊı×é£¬³õÊ¼»¯Ò»¸ö±í  
+	mpaszResults = paszResults; //ç»™å‡ºä¸€ä¸ªä¸€ç»´æŒ‡é’ˆæ•°ç»„ï¼Œåˆå§‹åŒ–ä¸€ä¸ªè¡¨  
 	mnCols = nCols;
 	mnRows = nRows;
 	mnCurrentRow = 0;
@@ -50,7 +50,7 @@ void CppSQLite3Table::finalize()
 {
 	if (mpaszResults)
 	{
-		sqlite3_free_table(mpaszResults);  //ÀûÓÃ¿âº¯ÊıÏú»Ù±í´æ´¢ÄÚÈİ  
+		sqlite3_free_table(mpaszResults);  //åˆ©ç”¨åº“å‡½æ•°é”€æ¯è¡¨å­˜å‚¨å†…å®¹  
 		mpaszResults = 0;
 	}
 }
@@ -80,7 +80,7 @@ const char* CppSQLite3Table::NameOfField(int nField)
 			DONT_DELETE_MSG);
 	}
 
-	return mpaszResults[nField]; //Ò»Î»Êı×éµÄÍ·mnCols¸öÔªËØ´æ·ÅµÄÊÇ±íµÄ×Ö¶ÎÃû³Æ£¬´æ´¢¾ßÌåÎ»ÖÃÊÇmpaszResults[0,,,mnCols-1]¡£  
+	return mpaszResults[nField]; //ä¸€ä½æ•°ç»„çš„å¤´mnColsä¸ªå…ƒç´ å­˜æ”¾çš„æ˜¯è¡¨çš„å­—æ®µåç§°ï¼Œå­˜å‚¨å…·ä½“ä½ç½®æ˜¯mpaszResults[0,,,mnCols-1]ã€‚  
 }
 
 const char* CppSQLite3Table::ValueOfField(int nField)
@@ -94,12 +94,12 @@ const char* CppSQLite3Table::ValueOfField(int nField)
 			DONT_DELETE_MSG);
 	}
 
-	//¸ù¾İÒª²éÑ¯µÄµ±Ç°ĞĞÓëÁĞÖµËã³öÔÚÒ»Î»Êı×éÖĞµÄË÷ÒıÏÂ±ê£¬¶îÍâ¼ÓÒ»¸ömnColsÊÇµÚÒ»ĞĞ´æ´¢µÄÊÇ×Ö¶ÎÃû  
+	//æ ¹æ®è¦æŸ¥è¯¢çš„å½“å‰è¡Œä¸åˆ—å€¼ç®—å‡ºåœ¨ä¸€ä½æ•°ç»„ä¸­çš„ç´¢å¼•ä¸‹æ ‡ï¼Œé¢å¤–åŠ ä¸€ä¸ªmnColsæ˜¯ç¬¬ä¸€è¡Œå­˜å‚¨çš„æ˜¯å­—æ®µå  
 	int nIndex = mnCurrentRow*mnCols + mnCols + nField;
 	return mpaszResults[nIndex];
 }
 
-//¸ù¾İ×Ö¶ÎÃû³ÆÀ´·ÃÎÊÄ³Ò»ÁĞµÄÊı¾İ  
+//æ ¹æ®å­—æ®µåç§°æ¥è®¿é—®æŸä¸€åˆ—çš„æ•°æ®  
 const char* CppSQLite3Table::ValueOfField(const char *szField)
 {
 	CheckResluts();
@@ -135,8 +135,8 @@ bool CppSQLite3Table::FieldIsNull(const char* szField)
 	return (ValueOfField(szField) == 0);
 }
 
-//ÕâÀïµÄ»ñÈ¡¾ßÌåÀàĞÍÊıÖµº¯Êı£¬ĞèÒªÓÃ»§¶ÔÊı¾İ¿âÖĞµÄ±íÓĞÒ»¶¨µÄÁË½â£¬ÖªµÀÄÄĞ©×Ö¶Î´æ´¢µÄÊÇÊ²Ã´ÄÚÈİ  
-//²¢ÇÒÊ¹ÓÃµÄÊÇÍâ²¿´«µİÒıÓÃµÄĞÎÊ½  
+//è¿™é‡Œçš„è·å–å…·ä½“ç±»å‹æ•°å€¼å‡½æ•°ï¼Œéœ€è¦ç”¨æˆ·å¯¹æ•°æ®åº“ä¸­çš„è¡¨æœ‰ä¸€å®šçš„äº†è§£ï¼ŒçŸ¥é“å“ªäº›å­—æ®µå­˜å‚¨çš„æ˜¯ä»€ä¹ˆå†…å®¹  
+//å¹¶ä¸”ä½¿ç”¨çš„æ˜¯å¤–éƒ¨ä¼ é€’å¼•ç”¨çš„å½¢å¼  
 bool CppSQLite3Table::GetIntField(int nField, int &rDest)
 {
 	if (FieldIsNull(nField))
@@ -145,7 +145,7 @@ bool CppSQLite3Table::GetIntField(int nField, int &rDest)
 	}
 	else
 	{
-		//atoi()º¯ÊıÊÇC¿âº¯Êı£¬½²ÊıÖµĞÍ×Ö·û´®×ª»»ÎªÕûĞÍÖµ  
+		//atoi()å‡½æ•°æ˜¯Cåº“å‡½æ•°ï¼Œè®²æ•°å€¼å‹å­—ç¬¦ä¸²è½¬æ¢ä¸ºæ•´å‹å€¼  
 		rDest = atoi(ValueOfField(nField));
 		return true;
 	}
@@ -172,7 +172,7 @@ bool CppSQLite3Table::GetFloatField(int nField, double &rDest)
 	}
 	else
 	{
-		//C¿âº¯Êı£¬½«ÊıÖµĞÍ×Ö·û´®×ª»»Îª¸¡µãÊı  
+		//Cåº“å‡½æ•°ï¼Œå°†æ•°å€¼å‹å­—ç¬¦ä¸²è½¬æ¢ä¸ºæµ®ç‚¹æ•°  
 		rDest = atof(ValueOfField(nField));
 		return true;
 	}
@@ -216,7 +216,7 @@ bool CppSQLite3Table::GetStringField(const char *szField, char *&rDset)
 	}
 }
 
-//ÔÚÃ¿Ò»´ÎĞèÒª»ñÈ¡Êı¾İµÄÊ±ºò¶¼ÒªÉèÖÃÒª·ÃÎÊµÄĞĞÖµ  
+//åœ¨æ¯ä¸€æ¬¡éœ€è¦è·å–æ•°æ®çš„æ—¶å€™éƒ½è¦è®¾ç½®è¦è®¿é—®çš„è¡Œå€¼  
 void CppSQLite3Table::SetRow(int nRow)
 {
 	CheckResluts();

@@ -11,11 +11,12 @@
 #include "Language.h"
 #include "GamePlayScene.h"
 #include "MapMakerScene.h"
-#include "storage/local-storage/LocalStorage.h"
+//#include "storage/local-storage/LocalStorage.h"
 #include "json/document.h"
 #include "json/prettywriter.h"
 #include "json/stringbuffer.h"
 #include "SquareBaseplateLayer.h"
+#include "Sqlite3Database/GameDB.h"
 USING_NS_CC;
 MainMenuLayer::MainMenuLayer()
 {
@@ -105,7 +106,7 @@ bool SelectLevelMenuLayer::init()
 	}
 	MenuItemFont::setFontName("fonts/arial.ttf");
 	MenuItemFont::setFontSize(40);
-	Vector<MenuItem*> menuItemList = Vector < MenuItem* >() ;
+	Vector<MenuItem*>* menuItemList =new Vector < MenuItem* >() ;
 
 	auto menuItemBack = MenuItemFont::create(std::string(LocalizedCStringByKey("back")));
 	menuItemBack->setCallback(
@@ -115,61 +116,95 @@ bool SelectLevelMenuLayer::init()
 		static_cast<LayerMultiplex*>(_parent)->switchTo(0);
 	}
 	);
-	menuItemList.pushBack(menuItemBack);
-	
-	std::string path = FileUtils::getInstance()->getWritablePath();	
-	localStorageInit(path + "/map");
-	std::string mapNameList;
-	if (localStorageGetItem("namelist", &mapNameList))
+	menuItemList->pushBack(menuItemBack);
+
+	GameDB::getInstance()->loopMapTable(
+		[menuItemList](std::string uuid, std::string mapName, std::string mapBuffer)
 	{
-		std::vector< std::string >* namelist = new std::vector< std::string >();
-		std::string splitStr = "|";
-		split(mapNameList, splitStr, namelist);
-		for (auto mapName : *namelist)
+		rapidjson::Document _json;
+		_json.Parse<0>(mapBuffer.c_str());
+		if (_json.HasParseError())
 		{
-			std::string _mapBuffer;
-			if (localStorageGetItem(mapName, &_mapBuffer))
+			CCLOG("SelectLevelMenuLayer::init() _json.HasParseError() mapName:%s,uuid:%s", mapName.c_str(),uuid.c_str());
+		}
+		else
+		{
+			if (_json.IsObject())
 			{
-				rapidjson::Document _json;
-				_json.Parse<0>(_mapBuffer.c_str());
-				if (_json.HasParseError())
+				auto _mapName = mapName == "" ? uuid : mapName;
+				auto menuItemMap = MenuItemFont::create(_mapName);
+				menuItemMap->setCallback(
+					[uuid](Ref * ref)
 				{
-					localStorageRemoveItem(mapName);
+					auto scene = Scene::create();
+					scene->addChild(GamePlayScene::create(uuid));
+					Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
 				}
-				else
-				{
-					if (_json.IsObject())
-					{
-						auto menuItemMap = MenuItemFont::create(mapName);
-						menuItemMap->setCallback(
-							[mapName](Ref * ref)
-						{
-							auto scene = Scene::create();
-							scene->addChild(GamePlayScene::create(mapName));
-							Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
-						}
-							);
-						menuItemList.pushBack(menuItemMap);
-					}
-					else
-					{
-						localStorageRemoveItem(mapName);
-					}
-				}
-				//SquareBaseplateLayer::getInstance()->readMapBuf(_mapBuffer);
+				);
+				menuItemList->pushBack(menuItemMap);
 			}
 			else
 			{
-				localStorageRemoveItem(mapName);
+				//localStorageRemoveItem(mapName);
 			}
 		}
-		namelist->clear();
-		delete namelist;
-		
 	}
-	localStorageFree();
+		);
 
-	auto menu = Menu::createWithArray(menuItemList);
+//	std::string path = FileUtils::getInstance()->getWritablePath();	
+////	localStorageInit(path + "/map");
+//	std::string mapNameList;
+////	if (localStorageGetItem("namelist", &mapNameList))
+//	{
+//		std::vector< std::string >* namelist = new std::vector< std::string >();
+//		std::string splitStr = "|";
+//		split(mapNameList, splitStr, namelist);
+//		for (auto mapName : *namelist)
+//		{
+//			std::string _mapBuffer;
+////			if (localStorageGetItem(mapName, &_mapBuffer))
+//			{
+//				rapidjson::Document _json;
+//				_json.Parse<0>(_mapBuffer.c_str());
+//				if (_json.HasParseError())
+//				{
+////					localStorageRemoveItem(mapName);
+//				}
+//				else
+//				{
+//					if (_json.IsObject())
+//					{
+//						auto menuItemMap = MenuItemFont::create(mapName);
+//						menuItemMap->setCallback(
+//							[mapName](Ref * ref)
+//						{
+//							auto scene = Scene::create();
+//							scene->addChild(GamePlayScene::create(mapName));
+//							Director::getInstance()->replaceScene(TransitionFlipX::create(0.5, scene));
+//						}
+//							);
+//						menuItemList.pushBack(menuItemMap);
+//					}
+//					else
+//					{
+//						//localStorageRemoveItem(mapName);
+//					}
+//				}
+//				//SquareBaseplateLayer::getInstance()->readMapBuf(_mapBuffer);
+//			}
+//			//else
+//			//{
+//			//	localStorageRemoveItem(mapName);
+//			//}
+//		}
+//		namelist->clear();
+//		delete namelist;
+//		
+//	}
+//	localStorageFree();
+
+	auto menu = Menu::createWithArray(*menuItemList);
+	menuItemList->clear();
 	auto s = Director::getInstance()->getWinSize();
 	addChild(menu);
 	menu->setPosition(Vec2(s.width / 2, s.height / 2));

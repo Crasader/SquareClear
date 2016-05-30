@@ -45,9 +45,9 @@ int CppSQLite3Statement::ExecDML()
 
 	if (nRet == SQLITE_DONE)
 	{
-		int nRowChanged = sqlite3_changes(mpDB);  //·µ»ØÊÜÓ°ÏìµÄĞĞÊı  
+		int nRowChanged = sqlite3_changes(mpDB);  //è¿”å›å—å½±å“çš„è¡Œæ•°  
 
-		nRet = sqlite3_reset(mpStmt);  //ÖØÖÃsqlite3_stmt*¶ÔÏó  
+		nRet = sqlite3_reset(mpStmt);  //é‡ç½®sqlite3_stmt*å¯¹è±¡  
 		if (nRet != SQLITE_OK)
 		{
 			szError = sqlite3_errmsg(mpDB);
@@ -73,11 +73,11 @@ CppSQLite3Query CppSQLite3Statement::ExecQuery()
 	int nRet = sqlite3_step(mpStmt);
 	if (nRet == SQLITE_DONE)
 	{
-		return CppSQLite3Query(mpDB, mpStmt, true);//·µ»ØÒ»¸ö²éÑ¯£¬Ã»ÓĞ²éÑ¯½á¹û£¬ËùÒÔÖÃÎªtrue  
+		return CppSQLite3Query(mpDB, mpStmt, true);//è¿”å›ä¸€ä¸ªæŸ¥è¯¢ï¼Œæ²¡æœ‰æŸ¥è¯¢ç»“æœï¼Œæ‰€ä»¥ç½®ä¸ºtrue  
 	}
 	else if (nRet == SQLITE_ROW)
 	{
-		return CppSQLite3Query(mpDB, mpStmt, false);//²éÑ¯ÊÇÓĞ½á¹ûµÄ£¬·µ»Øfalse´ú±íÕâ²»ÔÊĞíÉ¾³ı´Î²éÑ¯¶ÔÏó  
+		return CppSQLite3Query(mpDB, mpStmt, false);//æŸ¥è¯¢æ˜¯æœ‰ç»“æœçš„ï¼Œè¿”å›falseä»£è¡¨è¿™ä¸å…è®¸åˆ é™¤æ¬¡æŸ¥è¯¢å¯¹è±¡  
 	}
 	else
 	{

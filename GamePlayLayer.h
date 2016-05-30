@@ -36,7 +36,7 @@ public:
 
 	GamePlayLayer();
     ~GamePlayLayer();
-    virtual bool init(std::string mapName);
+    virtual bool init(std::string uuid);
     
 
     int m_gameBoardHeight;

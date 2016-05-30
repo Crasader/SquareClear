@@ -67,9 +67,10 @@ void CppSQLite3DB::Close()
 {
 	if (mpDB)
 	{
-		if (sqlite3_close(mpDB) == SQLITE_OK)
+		int nRet = sqlite3_close(mpDB);
+		if (nRet == SQLITE_OK)
 		{
-			mpDB = 0; //Ò»µ©¹Ø±ÕÊı¾İ¿âÖ¸Õë£¬ÒªÖÃÎª0£¬·ÀÖ¹¶à´Î¹Ø±Õ³ö´í  
+			mpDB = 0; //ä¸€æ—¦å…³é—­æ•°æ®åº“æŒ‡é’ˆï¼Œè¦ç½®ä¸º0ï¼Œé˜²æ­¢å¤šæ¬¡å…³é—­å‡ºé”™  
 		}
 		else
 		{
@@ -90,7 +91,7 @@ int CppSQLite3DB::ExecDML(const char *szSQL)
 
 	if (nRet == SQLITE_OK)
 	{
-		return sqlite3_changes(mpDB);  //·µ»ØÕâ¸öÖ´ĞĞÓ°ÏìµÄĞĞÊı  
+		return sqlite3_changes(mpDB);  //è¿”å›è¿™ä¸ªæ‰§è¡Œå½±å“çš„è¡Œæ•°  
 	}
 	else
 	{
@@ -102,19 +103,19 @@ CppSQLite3Query CppSQLite3DB::ExecQuery(const char *szSQL)
 {
 	CheckDB();
 
-	//±àÒëÒ»ÌõÖ¸Õë¶ÔÏó£¬ÓÃÁÙÊ±±äÁ¿´æ´¢£¬´«µİ¸øCppSQLite3Queryºó£¬  
-	//Õâ¸öÁÙÊ±sqlite3_stmt*¶ÔÏó»á×Ô¶¯ÏûÊ§£¬×îºóÖ»ÓĞÒ»·İ±£ÁôÔÚCppSQLite3QueryÖĞ  
+	//ç¼–è¯‘ä¸€æ¡æŒ‡é’ˆå¯¹è±¡ï¼Œç”¨ä¸´æ—¶å˜é‡å­˜å‚¨ï¼Œä¼ é€’ç»™CppSQLite3Queryåï¼Œ  
+	//è¿™ä¸ªä¸´æ—¶sqlite3_stmt*å¯¹è±¡ä¼šè‡ªåŠ¨æ¶ˆå¤±ï¼Œæœ€ååªæœ‰ä¸€ä»½ä¿ç•™åœ¨CppSQLite3Queryä¸­  
 	sqlite3_stmt *pStmt = Compile(szSQL);
 
 	int nRet = sqlite3_step(pStmt);
 
-	if (nRet == SQLITE_DONE) //±íÃ÷Õâ¸ö²éÑ¯Ã»ÓĞ·µ»Ø½á¹û  
+	if (nRet == SQLITE_DONE) //è¡¨æ˜è¿™ä¸ªæŸ¥è¯¢æ²¡æœ‰è¿”å›ç»“æœ  
 	{
-		return CppSQLite3Query(mpDB, pStmt, true); //ËùÒÔ½«µÚÈı¸ö×Ö¶ÎÉèÖÃÎªtrue£¬±íÃ÷µ½´ï²éÑ¯½á¹ûÄ©Î²´¦  
+		return CppSQLite3Query(mpDB, pStmt, true); //æ‰€ä»¥å°†ç¬¬ä¸‰ä¸ªå­—æ®µè®¾ç½®ä¸ºtrueï¼Œè¡¨æ˜åˆ°è¾¾æŸ¥è¯¢ç»“æœæœ«å°¾å¤„  
 	}
-	else if (nRet == SQLITE_ROW) //Õâ¸ö²éÑ¯ÖĞÖÁÉÙÓĞÒ»ĞĞ¼ÇÂ¼  
+	else if (nRet == SQLITE_ROW) //è¿™ä¸ªæŸ¥è¯¢ä¸­è‡³å°‘æœ‰ä¸€è¡Œè®°å½•  
 	{
-		return CppSQLite3Query(mpDB, pStmt, false); //false±íÃ÷Ã»ÓĞµ½´ï²éÑ¯½á¹ûÄ©Î²  
+		return CppSQLite3Query(mpDB, pStmt, false); //falseè¡¨æ˜æ²¡æœ‰åˆ°è¾¾æŸ¥è¯¢ç»“æœæœ«å°¾  
 	}
 	else
 	{

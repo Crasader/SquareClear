@@ -9,15 +9,16 @@
 #include "GamePlayLayer.h"
 #include "SquareGroup.h"
 #include "SquareBaseplateLayer.h"
-#include "storage/local-storage/LocalStorage.h"
+//#include "storage/local-storage/LocalStorage.h"
 #include "json/document.h"
 #include "json/prettywriter.h"
 #include "json/stringbuffer.h"
+#include "Sqlite3Database/GameDB.h"
 USING_NS_CC;
 
 Vec2 GamePlayLayer::s_squareSize = Vec2(32, 32);
 GamePlayLayer* GamePlayLayer::s_pGamePlayLayer = NULL;
-bool GamePlayLayer::init(std::string mapName)
+bool GamePlayLayer::init(std::string uuid)
 {
     if(!Layer::init())
     {
@@ -41,29 +42,18 @@ bool GamePlayLayer::init(std::string mapName)
     m_drawNode = DrawNode::create();
     addChild(m_drawNode, 10);
 
-    //m_drawNode->drawSolidRect(Vec2(10,10), Vec2(200,200), Color4F(1,1,0,1));
-    
-    //test
-    //drawSquare();
-	//auto sgtest = SquareGroup::create();
-
-	//sgtest->SetSquareGroup(s_squareSize, SquareGroup::ST_L, Square::SC_BLUE);
-	//sgtest->setPosition(Vec2(100,100));
- //   //drawSquareGroup(sgtest, 100, 200);
-	//sgtest->DrawGroup();
-	//addChild(sgtest, 100);
-
 	m_pSquareBaseplateLayer = SquareBaseplateLayer::create();
 	m_pSquareBaseplateLayer->setPosition(Vec2(50, 300));
     //m_pSquareBaseplateLayer->readMapBufTest();
 
 	std::string path = FileUtils::getInstance()->getWritablePath();
-	localStorageInit(path + "/map");
+//	localStorageInit(path + "/map");
 
 	std::string _mapBuffer;
-	localStorageGetItem(mapName, &_mapBuffer);
+
+	_mapBuffer = GameDB::getInstance()->getMapBuffer(uuid);
 	m_pSquareBaseplateLayer->readMapBuf(_mapBuffer);
-	localStorageFree();
+//	localStorageFree();
 	addChild(m_pSquareBaseplateLayer, 0);
 
 	rapidjson::Document _json;
@@ -77,7 +67,7 @@ bool GamePlayLayer::init(std::string mapName)
 
 		auto sg = SquareGroup::create();
 		sg->SetSquareGroup(s_squareSize, SquareGroup::SQUAREGROUP_TYPE(groupType.GetInt()), Square::SQUARE_COLOR(groupColor.GetInt()));
-		sg->setPosition(Vec2(50 + (i %5) * s_squareSize.x * 5, 50 + (i/5) * s_squareSize.y * 5));
+		sg->setPosition(Vec2((i %5) * s_squareSize.x * 4,  (i/5) * s_squareSize.y * 4));
 		sg->DrawGroup();
 		addChild(sg, 1);
 

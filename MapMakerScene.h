@@ -29,6 +29,6 @@ public:
 
 private:
 	void saveMapToFile();
-
+	std::string m_guid;
 };
 #endif // MapMakerScene_h__
