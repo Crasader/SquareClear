@@ -4,44 +4,39 @@
 
 #include <string>
 #include <stdio.h>
-#ifdef WIN32
+#include "cocos2d.h"
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 #include <objbase.h>
-#else
-#include <uuid/uuid.h>
+#elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#include "platform/android/jni/JniHelper.h"
+#elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-typedef struct _GUID
-{
-	unsigned long Data1;
-	unsigned short Data2;
-	unsigned short Data3;
-	unsigned char Data4[8];
-} GUID, UUID;
 #endif
+
+
+USING_NS_CC;
 
 namespace XGUID
 {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 	GUID CreateGuid()
 	{
 		GUID guid;
-#ifdef WIN32
+
 		CoCreateGuid(&guid);
-#else
-		uuid_generate(reinterpret_cast<unsigned char *>(&guid));
-#endif
+
 		return guid;
 	}
 
 	std::string GuidToString(const GUID &guid)
 	{
 		char buf[64] = { 0 };
-#ifdef __GNUC__
-		snprintf(
-#else // MSVC
+
 		_snprintf_s(
-#endif
+
 			buf,
 			sizeof(buf),
-			"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+			"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
 			guid.Data1, guid.Data2, guid.Data3,
 			guid.Data4[0], guid.Data4[1],
 			guid.Data4[2], guid.Data4[3],
@@ -49,11 +44,29 @@ namespace XGUID
 			guid.Data4[6], guid.Data4[7]);
 		return std::string(buf);
 	}
-
 	std::string CreateGuidString()
 	{
 		return GuidToString(CreateGuid());
 	}
+#elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+	std::string CreateGuidString()
+	{
+		jstring jstr;
+		JniMethodInfo t;
+		if(!JniHelper::getStaticMethodInfo(t, "org.cocos2dx.cpp.AppUtility", "CreateGuidString", "()Ljava/lang/String;"))
+		{
+			CCLOG("org.cocos2dx.cpp.AppUtility CreateGuidString: error to get methodInfo");
+			return "";
+		}
+		jstr = (jstring)(t.env->CallStaticObjectMethod(t.classID, t.methodID));
+		std::string _uuid = JniHelper::jstring2string(jstr);
+		t.env->DeleteLocalRef(jstr);
+		return _uuid;
+	}
+#elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+
+#endif
+
 
 
 }//namespace

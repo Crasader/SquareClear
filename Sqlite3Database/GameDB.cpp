@@ -11,7 +11,12 @@ GameDB::GameDB()
 	m_DBName = "map.db";
 	m_DBPath = FileUtils::getInstance()->getWritablePath();
 	m_DB = new CppSQLite3DB();
-
+	if (!FileUtils::getInstance()->isFileExist(m_DBPath + m_DBName))
+	{
+		auto dbFile = FileUtils::getInstance()->fullPathForFilename(m_DBName);
+		Data dbData = FileUtils::getInstance()->getDataFromFile(dbFile);
+		FileUtils::getInstance()->writeDataToFile(dbData, m_DBPath + m_DBName);
+	}
 	CCLOG("GameDB database path: %s/%s",m_DBPath.c_str(),m_DBName.c_str());
 }
 
@@ -64,7 +69,7 @@ int GameDB::insertMap(std::string uuid, std::string name, std::string buffer, st
 {
 	if (checkMapExist(uuid))
 	{
-		CCLOG("GameDB::insertMap map:%s exist", uuid);
+		CCLOG("GameDB::insertMap map:%s exist", uuid.c_str());
 		return 0;
 	}
 	m_DB->Open(std::string(m_DBPath + "/" + m_DBName).c_str());
@@ -85,7 +90,7 @@ int GameDB::updateMap(std::string uuid, std::string buffer)
 {
 	if (!checkMapExist(uuid))
 	{
-		CCLOG("GameDB::updateMap map:%s not exist", uuid);
+		CCLOG("GameDB::updateMap map:%s not exist", uuid.c_str());
 		return 0;
 	}
 	m_DB->Open(std::string(m_DBPath + "/" + m_DBName).c_str());
