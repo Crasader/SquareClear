@@ -6,5 +6,15 @@
     <string>Start Game</string>
     <key>map_maker</key>
     <string>Map Maker</string>
+    <key>create_group</key>
+    <string>Create Square Group</string>
+    <key>delete_group</key>
+    <string>Delete Square Group</string>
+    <key>save_map</key>
+    <string>Save Map</string>
+    <key>back</key>
+    <string>Back</string>
+    <key>input_map_name</key>
+    <string>Input Map Name</string>
 </dict>
 </plist>
